@@ -15,15 +15,15 @@ public interface LinenService {
 
     Result linens(String accessToken, RfidsVO rfidsVO) throws BusinessException;
 
-    Result update(String accessToken,LinenUpdateVO linenUpdateVO);
+    Result update(String accessToken, LinenUpdateVO linenUpdateVO);
 
-    Result scrap(String accessToken,LinenScrapVO linenScrapVO);
+    Result scrap(String accessToken, LinenScrapVO linenScrapVO);
 
-    Result dirt(String accessToken,LinenDirtVO linenDirtVO) throws BusinessException;
+    Result dirt(String accessToken, LinenDirtVO linenDirtVO) throws BusinessException;
 
-    Result recheck(String accessToken,LinenRecheckVO linenRecheckVO);
+    Result recheck(String accessToken, LinenRecheckVO linenRecheckVO);
 
-    Result pack(String accessToken,RfidsVO rfidsVO);
+    Result pack(String accessToken, RfidsVO rfidsVO);
 
     Result types(String accessToken);
 

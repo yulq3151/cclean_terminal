@@ -9,7 +9,6 @@ import com.cclean.terminal.constant.Constant;
 import com.cclean.terminal.entity.TLinenPack;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model.*;
-import com.cclean.terminal.model2.LinenPackM;
 import com.cclean.terminal.service.*;
 import com.cclean.terminal.util.FastJsonUtil;
 import com.cclean.terminal.util.HttpUtil;
@@ -567,9 +566,10 @@ public class LinenServiceImpl implements LinenService {
         if (list == null || list.size() == 0) {
             throw new BusinessException("00001", "未查询到打扎单");
         }
+        Collections.sort(list);
         String packurl = cloudUrl + "/linen/api/linen/packinfo";
         param.clear();
-        param.put("id", list.get(0));
+        param.put("id", list.get(list.size()-1));
         JSONObject object = InvokeUtil.invokeResult(packurl, token, param);
         LinenPack pack = FastJsonUtil.toObject(object.toJSONString(), LinenPack.class);
         List<String> array = JSONArray.parseArray(object.getString("rfids"), String.class);

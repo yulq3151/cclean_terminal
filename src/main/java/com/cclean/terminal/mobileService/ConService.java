@@ -25,7 +25,7 @@ public interface ConService {
 
     LinenPackM pack(String token, String id) throws BusinessException;
 
-    boolean updatepack(String token, List<String> ids) throws BusinessException;
+    boolean updatepack(String token, List<String> ids, String type) throws BusinessException;
 
     DeliveryPointM deliveryPoint(String token, String id) throws BusinessException;
 

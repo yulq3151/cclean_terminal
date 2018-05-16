@@ -143,10 +143,10 @@ public class OrderMController extends BaseController {
         String token = getToken(request);
         String workid = zPickVo.getWorkOrderId();
         if (StringUtils.isBlank(workid) || zPickVo.getSkuSVos() == null || zPickVo.getPackids() == null) {
-            throw  new BusinessException("00001", "参数不完整：workid:"+workid+",skuSVos:"+zPickVo.getSkuSVos().toString()+",Packids:"+zPickVo.getPackids());
+            throw  new BusinessException("00001", "参数不完整");
         }
         if (zPickVo.getSkuSVos().length == 0 || zPickVo.getPackids().length == 0) {
-            throw  new BusinessException("00001","打扎信息不完整 skuSVos:"+zPickVo.getSkuSVos()+",Packids:"+zPickVo.getPackids());
+            throw  new BusinessException("00001","参数不完整");
         }
         DeliveryOrder deliveryOrder = orderMService.createDeliveryOrder(token, zPickVo);
         return new Result(deliveryOrder);

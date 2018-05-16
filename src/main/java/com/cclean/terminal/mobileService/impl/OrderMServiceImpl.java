@@ -9,10 +9,12 @@ import com.cclean.terminal.mobileService.HotelMService;
 import com.cclean.terminal.mobileService.OrderMService;
 import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.*;
-import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
-import com.cclean.terminal.vo.*;
+import com.cclean.terminal.vo.OrderIdsVO;
+import com.cclean.terminal.vo.OrderVO;
+import com.cclean.terminal.vo.SkuSVo;
+import com.cclean.terminal.vo.ZPickVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -282,10 +284,10 @@ public class OrderMServiceImpl implements OrderMService {
         hotelSet.add(pickorderOrder.getHotelId());
         pointSet.add(pickorderOrder.getPointId());
         userSet.add(pickorderOrder.getOperator());
-        PickOrderSku[] skusta = pickorderOrder.getSkus();
-        if (skusta != null && skusta.length > 0) {
-            for (int i = 0; i < skusta.length; i++) {
-                skuSet.add(skusta[i].getSkuId());
+        List<PickOrderSku> skusta = pickorderOrder.getSkus();
+        if (skusta != null && skusta.size() > 0) {
+            for (int i = 0; i < skusta.size(); i++) {
+                skuSet.add(skusta.get(i).getSkuId());
             }
         }
         Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelSet);
@@ -299,8 +301,9 @@ public class OrderMServiceImpl implements OrderMService {
         pickorderOrder.setTotalCnt(pickorderOrder.getExpectCount());
         if (!skuSet.isEmpty()) {
             Map<String, Sku> skus = this.conService.findSkusByIds(skuSet);
-            for (int i = 0; i < skusta.length; i++) {
-                PickOrderSku orderSku = skusta[i];
+            List<PickOrderSku> skulist = new ArrayList<>();
+            for (int i = 0; i < skusta.size(); i++) {
+                PickOrderSku orderSku = skusta.get(i);
                 Sku sku = skus.get(orderSku.getSkuId());
                 if (sku != null) {
                     orderSku.setSkuName(sku.getName());
@@ -309,6 +312,7 @@ public class OrderMServiceImpl implements OrderMService {
                     int exount = orderSku.getExpectCount() == null ? 0 : orderSku.getExpectCount(); //应配数量
                     if (exount == 0) {
                         orderSku.setZpick(0);
+                        skulist.add(orderSku);
                     } else if (exount <= count) {
                         orderSku.setZpick(1);
                     } else {
@@ -317,7 +321,8 @@ public class OrderMServiceImpl implements OrderMService {
                     }
                 }
             }
-            Collections.sort(Arrays.asList(skusta),Comparator.comparing(PickOrderSku::getSkuName));
+            skusta.removeAll(skulist);
+            Collections.sort(skusta,Comparator.comparing(PickOrderSku::getSkuName));
         }
         return pickorderOrder;
     }
@@ -364,12 +369,21 @@ public class OrderMServiceImpl implements OrderMService {
         param.put("rfids", rfids);
 
         //请求生成配送单接口
-        JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单生成配送单 Responses: {}", data);
+        String post = HttpUtil.doPost(url, token, param);
+        JSONObject obj = JSONObject.parseObject(post);
+        String retCode = obj.getString("retCode");
+        if (!"00000".equals(retCode)) {
+            if ("00103".equals(retCode)) {
+                throw new BusinessException("00001","有布草已配送");
+            }
+            throw new BusinessException(retCode,obj.getString("retInfo"));
+        }
+        String datajson = obj.getString("data");
+        logger.info("任务单生成配送单 Responses: {}", datajson);
 
         //生成配送单成功后，改变打扎状态
-        this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()));
-        DeliveryOrder deliveryOrder = JSONObject.parseObject(data.toJSONString(), DeliveryOrder.class);
+        this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()),"1");
+        DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
         return deliveryOrder;
 
     }

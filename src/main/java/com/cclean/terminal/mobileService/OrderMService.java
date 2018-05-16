@@ -16,9 +16,9 @@ import com.cclean.terminal.vo.ZPickVo;
  **/
 public interface OrderMService {
 
-    PageMo orderlist(String token,OrderVO orderVO) throws BusinessException;
+    PageMo orderlist(String token, OrderVO orderVO) throws BusinessException;
 
-    Order orderinfo(String token,String id) throws BusinessException;
+    Order orderinfo(String token, String id) throws BusinessException;
 
     PageMo pickorderlist(String token, OrderVO orderVO) throws BusinessException;
 

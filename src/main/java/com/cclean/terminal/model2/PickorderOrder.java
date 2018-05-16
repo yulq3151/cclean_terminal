@@ -1,6 +1,6 @@
 package com.cclean.terminal.model2;
 
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author yulq
@@ -19,7 +19,7 @@ public class PickorderOrder extends BaseOrder {
     //实配数量
     private Integer realCount;
     //sku信息
-    private PickOrderSku[] skus;
+    private List<PickOrderSku> skus;
     //酒店
     private HotelBo hotel;
     //配送点
@@ -67,11 +67,11 @@ public class PickorderOrder extends BaseOrder {
         this.realCount = realCount;
     }
 
-    public PickOrderSku[] getSkus() {
+    public List<PickOrderSku> getSkus() {
         return skus;
     }
 
-    public void setSkus(PickOrderSku[] skus) {
+    public void setSkus(List<PickOrderSku> skus) {
         this.skus = skus;
     }
 
@@ -98,7 +98,10 @@ public class PickorderOrder extends BaseOrder {
                 ", state=" + state +
                 ", expectCount=" + expectCount +
                 ", realCount=" + realCount +
-                ", skus=" + Arrays.toString(skus) +
+                ", skus=" + skus +
+                ", hotel=" + hotel +
+                ", drypoint=" + drypoint +
+                ", totalCnt=" + totalCnt +
                 '}';
     }
 }

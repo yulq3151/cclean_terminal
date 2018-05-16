@@ -118,7 +118,7 @@ public class ConController extends BaseMController {
         if (ids == null || ids.size()==0) {
             throw  new BusinessException("00001", "参数有误");
         }
-        boolean bo = conService.updatepack(token, ids);
+        boolean bo = conService.updatepack(token, ids,"2");
         return new Result(bo);
     }
 

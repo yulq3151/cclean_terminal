@@ -1,6 +1,5 @@
 package com.cclean.terminal.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -220,10 +219,10 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("00001", "没有找到终端用户对应的工厂");
         }
 
-//        List<String> menus = new ArrayList<>();
-//        JSONObject roleMenu = terminalDev.getJSONObject("roleMenu");
-//        menuToMenuList(menus,roleMenu);
-//        userInfo.setMenus(menus);
+        List<String> menus = new ArrayList<>();
+        JSONObject roleMenu = terminalDev.getJSONObject("roleMenu");
+        menuToMenuList(menus,roleMenu);
+        userInfo.setMenus(menus);
         return userInfo;
     }
 

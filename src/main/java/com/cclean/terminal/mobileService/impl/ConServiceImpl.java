@@ -169,10 +169,11 @@ public class ConServiceImpl implements ConService {
      * @throws BusinessException
      */
     @Override
-    public boolean updatepack(String token, List<String> ids) throws BusinessException {
+    public boolean updatepack(String token, List<String> ids, String type) throws BusinessException {
         String url = cloudUrl + "/linen/api/linen/updatepcak";
         JSONObject param = new JSONObject();
         param.put("ids", ids);
+        param.put("type",type); //type 1使用 2解除
         String httpEntitys = HttpUtil.doPost(url, token, param);
         logger.info("修改打扎为不可用 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
