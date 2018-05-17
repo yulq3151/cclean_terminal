@@ -8,6 +8,7 @@ import com.cclean.terminal.mobileService.ConService;
 import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.HttpUtil;
+import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.PageVO;
 import org.slf4j.Logger;
@@ -328,5 +329,29 @@ public class ConServiceImpl implements ConService {
             map.put(sku.getId(),sku);
         }
         return map;
+    }
+
+    /**
+     *  分布查询类型下的用户
+     * @param token
+     * @param type
+     * @param modelType
+     * @param pageNum
+     * @param pageSize
+     * @return
+     * */
+    @Override
+    public PageMo<UserInfo> findUsersByType(String token, int type, int modelType, int pageNum, int pageSize) throws BusinessException {
+        String url = cloudUrl+"/cloud/user/center/user/getUserByMultiCondition";
+        JSONObject param = new JSONObject();
+        param.put("type",type);
+        param.put("modelType", modelType);
+        param.put("pageNum",pageNum);
+        param.put("pageSize",pageSize);
+        JSONObject object = InvokeUtil.invokeResult(url, token, param);
+        logger.info("分类查询用户 Responses: {}", object);
+        int total = object.getIntValue("total");
+        List<UserInfo> list = JSONObject.parseArray(object.getString("list"), UserInfo.class);
+        return new PageMo<>(list,pageNum,pageSize,total);
     }
 }

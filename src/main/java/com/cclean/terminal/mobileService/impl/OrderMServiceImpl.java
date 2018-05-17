@@ -544,4 +544,18 @@ public class OrderMServiceImpl implements OrderMService {
         return dryOrder;
     }
 
+    /**
+     * 修改配送单的袋子
+     * @param token
+     * @param deliveryId
+     * @param codes
+     * @return
+     */
+    @Override
+    public boolean updateDeliveryOrder(String token,String deliveryId,List<String> codes){
+        String url = cloudUrl+"";
+
+        return true;
+
+    }
 }

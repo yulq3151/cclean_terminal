@@ -6,10 +6,7 @@ import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.ConService;
 import com.cclean.terminal.model.Result;
-import com.cclean.terminal.model2.AboutUsModel;
-import com.cclean.terminal.model2.DeliveryPointM;
-import com.cclean.terminal.model2.LinenPackM;
-import com.cclean.terminal.model2.VersionInfo;
+import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.PageVO;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -97,7 +94,7 @@ public class ConController extends BaseMController {
         JSONObject jsonObj = JSONObject.parseObject(param);
         String id = jsonObj.getString("id");
         if (StringUtils.isBlank(id)) {
-            throw  new BusinessException("00001", "参数有误");
+            throw new BusinessException("00001", "参数有误");
         }
         LinenPackM packM = conService.pack(token, id);
         return new Result(packM);
@@ -115,15 +112,16 @@ public class ConController extends BaseMController {
         String token = getToken(request);
         JSONObject jsonObj = JSONObject.parseObject(param);
         List<String> ids = JSONArray.parseArray(jsonObj.getString("ids"), String.class);
-        if (ids == null || ids.size()==0) {
-            throw  new BusinessException("00001", "参数有误");
+        if (ids == null || ids.size() == 0) {
+            throw new BusinessException("00001", "参数有误");
         }
-        boolean bo = conService.updatepack(token, ids,"2");
+        boolean bo = conService.updatepack(token, ids, "2");
         return new Result(bo);
     }
 
     /**
      * 根据配送点ID查询配送点
+     *
      * @param request
      * @param param
      * @return
@@ -135,7 +133,7 @@ public class ConController extends BaseMController {
         JSONObject jsonObj = JSONObject.parseObject(param);
         String id = jsonObj.getString("id");
         if (StringUtils.isBlank(id)) {
-            throw  new BusinessException("00001", "参数有误");
+            throw new BusinessException("00001", "参数有误");
         }
         DeliveryPointM deliveryPointM = conService.deliveryPoint(token, id);
         return new Result(deliveryPointM);
@@ -176,6 +174,27 @@ public class ConController extends BaseMController {
         String token = getToken(request);
         VersionInfo versionInfo = this.conService.versionUpdate(param, token);
         return new Result(versionInfo);
+    }
+
+    /**
+     * 查询物流用户
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/user/query")
+    public Result findUsersByType(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject object = JSONObject.parseObject(param);
+        int type = object.getIntValue("type");
+        int modelType = object.getIntValue("modelType");
+        int pageNum = object.getIntValue("pageNum");
+        int pageSize = object.getIntValue("pageSize");
+        if (pageNum <= 0 || pageSize <= 0) {
+            throw new BusinessException("00001","分页参数错误");
+        }
+        PageMo<UserInfo> users = this.conService.findUsersByType(token, type, modelType, pageNum, pageSize);
+        return new Result(users);
     }
 
 }

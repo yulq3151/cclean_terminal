@@ -208,7 +208,29 @@ public class OrderMController extends BaseController {
         }
         DeliveryOrder deliveryOrder = orderMService.deliveryOrderinfo(token, id);
         return new Result(deliveryOrder);
+    }
 
+    /**
+     *  修改配送单的袋子
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/deliveryorder/package/update")
+    public Result updateDeliveryOrder(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject jsonparam = JSONObject.parseObject(param);
+        String deliveryId = jsonparam.getString("deliveryId");
+        List<String> codes = JSONObject.parseArray(jsonparam.getString("codes"),String.class);
+        if (StringUtils.isBlank(deliveryId)) {
+            throw  new BusinessException("00001", "id不能为空");
+        }
+        if (codes == null || codes.size()==0) {
+            throw  new BusinessException("00001", "布草袋不能为空");
+        }
+        boolean bl = orderMService.updateDeliveryOrder(token, deliveryId, codes);
+        return new Result(bl);
     }
 
 }

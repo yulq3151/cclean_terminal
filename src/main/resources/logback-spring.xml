@@ -48,20 +48,18 @@
     </appender>
 
     <springProfile name="dev">
-        <logger name="org.springframework.web" level="INFO" />
-        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="INFO"/>
-        <logger name="com.cclean.cloud.mapper" level="DEBUG" />
-        <root level="DEBUG">
+        <logger name="org.springframework.web" level="ERROR" />
+        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="ERROR"/>
+        <root level="INFO">
             <appender-ref ref="INFO_FILE" />
             <appender-ref ref="ERROR_FILE" />
             <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>
     <springProfile name="qa">
-        <logger name="org.springframework.web" level="INFO" />
-        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="INFO"/>
-        <logger name="com.cclean.cloud.mapper" level="DEBUG" />
-        <root level="DEBUG">
+        <logger name="org.springframework.web" level="ERROR" />
+        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="ERROR"/>
+        <root level="INFO">
             <appender-ref ref="INFO_FILE" />
             <appender-ref ref="ERROR_FILE" />
             <appender-ref ref="CONSOLE" />
@@ -70,12 +68,9 @@
     <springProfile name="pro">
         <logger name="org.springframework.web" level="ERROR" />
         <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="ERROR"/>
-        <logger name="com.cclean.cloud.mapper" level="ERROR" />
         <root level="INFO">
             <appender-ref ref="INFO_FILE" />
             <appender-ref ref="ERROR_FILE" />
-        </root>
-        <root level="ERROR">
             <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>

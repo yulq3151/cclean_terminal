@@ -7,14 +7,24 @@ package com.cclean.terminal.vo;
  **/
 public class LinenPackageVO extends PageVO{
     private String id;
+    //编码
     private String code;
+    //颜色
     private String color;
-    private Integer type;
-    private Integer status;
+    //类型
+    private Integer linentype;
+    //使用状态
+    private Integer usetype;
+    //酒店ID
     private String hotelId;
+    //配送点ID
     private String pointId;
-    private Integer ltday; //查询小于天数
-    private Integer gtday; //查询大于天数
+    //使用者
+    private String userId;
+    //查询大于天数
+    private Integer beginNum;
+    //查询小于天数
+    private Integer endNum;
 
     public String getId() {
         return id;
@@ -40,20 +50,20 @@ public class LinenPackageVO extends PageVO{
         this.color = color;
     }
 
-    public Integer getType() {
-        return type;
+    public Integer getLinentype() {
+        return linentype;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setLinentype(Integer linentype) {
+        this.linentype = linentype;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Integer getUsetype() {
+        return usetype;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setUsetype(Integer usetype) {
+        this.usetype = usetype;
     }
 
     public String getHotelId() {
@@ -72,20 +82,28 @@ public class LinenPackageVO extends PageVO{
         this.pointId = pointId;
     }
 
-    public Integer getLtday() {
-        return ltday;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setLtday(Integer ltday) {
-        this.ltday = ltday;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public Integer getGtday() {
-        return gtday;
+    public Integer getBeginNum() {
+        return beginNum;
     }
 
-    public void setGtday(Integer gtday) {
-        this.gtday = gtday;
+    public void setBeginNum(Integer beginNum) {
+        this.beginNum = beginNum;
+    }
+
+    public Integer getEndNum() {
+        return endNum;
+    }
+
+    public void setEndNum(Integer endNum) {
+        this.endNum = endNum;
     }
 
     @Override
@@ -94,14 +112,13 @@ public class LinenPackageVO extends PageVO{
                 "id='" + id + '\'' +
                 ", code='" + code + '\'' +
                 ", color='" + color + '\'' +
-                ", type=" + type +
-                ", status=" + status +
+                ", linentype=" + linentype +
+                ", usetype=" + usetype +
                 ", hotelId='" + hotelId + '\'' +
                 ", pointId='" + pointId + '\'' +
-                ", ltday=" + ltday +
-                ", gtday=" + gtday +
-                ", pageNum=" + pageNum +
-                ", pageSize=" + pageSize +
+                ", userId='" + userId + '\'' +
+                ", beginNum=" + beginNum +
+                ", endNum=" + endNum +
                 '}';
     }
 }

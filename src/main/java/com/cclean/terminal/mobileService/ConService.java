@@ -5,6 +5,7 @@ import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.DeliveryPointM;
 import com.cclean.terminal.model2.LinenPackM;
+import com.cclean.terminal.model2.UserInfo;
 import com.cclean.terminal.model2.VersionInfo;
 import com.cclean.terminal.vo.PageVO;
 
@@ -37,4 +38,6 @@ public interface ConService {
     Map<String,String> findUsersByIds(Set<String> ids, String token) throws BusinessException;
 
     Map<String,Sku> findSkusByIds(Set<String> ids) throws BusinessException;
+
+    PageMo<UserInfo> findUsersByType(String token, int type, int modelType, int pageNum, int pageSize) throws BusinessException;
 }
