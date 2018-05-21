@@ -391,7 +391,11 @@ public class LinenServiceImpl implements LinenService {
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
-
+            //改变布草状态
+            String stateUrl= cloudUrl+"/linen/api/linen/update";
+            JSONObject param = new JSONObject();
+            param.put("transferState",1);
+            HttpUtil.doPost(stateUrl,accessToken,param);
             return result;
         } catch (Exception e) {
             logger.error(Constant.RET_CODE_DEBUG, e);

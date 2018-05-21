@@ -1,6 +1,5 @@
 package com.cclean.terminal.mobileController;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.HotelMService;
 import com.cclean.terminal.model.Result;
@@ -14,9 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author yulq

@@ -11,9 +11,15 @@ public class LinenPackageVO extends PageVO{
     private String code;
     //颜色
     private String color;
-    //类型
+    //类型1净 2脏
     private Integer linentype;
-    //使用状态
+    //状态-1报废 1正常
+    private Integer linenstate;
+    //批次
+    private String batch;
+    //洗涤次数
+    private Integer washNum;
+    //使用状态1 入库 2出库
     private Integer usetype;
     //酒店ID
     private String hotelId;
@@ -25,6 +31,30 @@ public class LinenPackageVO extends PageVO{
     private Integer beginNum;
     //查询小于天数
     private Integer endNum;
+
+    public Integer getLinenstate() {
+        return linenstate;
+    }
+
+    public void setLinenstate(Integer linenstate) {
+        this.linenstate = linenstate;
+    }
+
+    public Integer getWashNum() {
+        return washNum;
+    }
+
+    public void setWashNum(Integer washNum) {
+        this.washNum = washNum;
+    }
+
+    public String getBatch() {
+        return batch;
+    }
+
+    public void setBatch(String batch) {
+        this.batch = batch;
+    }
 
     public String getId() {
         return id;
