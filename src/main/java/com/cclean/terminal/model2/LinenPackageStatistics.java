@@ -15,7 +15,7 @@ public class LinenPackageStatistics implements Serializable{
     //酒店名称
     private String hotelName;
 
-    private List<LinenPackageStacount> packageStatics;
+    private List<LinenPackageStacount> hotelData;
 
     public String getHotelId() {
         return hotelId;
@@ -33,11 +33,11 @@ public class LinenPackageStatistics implements Serializable{
         this.hotelName = hotelName;
     }
 
-    public List<LinenPackageStacount> getPackageStatics() {
-        return packageStatics;
+    public List<LinenPackageStacount> getHotelData() {
+        return hotelData;
     }
 
-    public void setPackageStatics(List<LinenPackageStacount> packageStatics) {
-        this.packageStatics = packageStatics;
+    public void setHotelData(List<LinenPackageStacount> hotelData) {
+        this.hotelData = hotelData;
     }
 }

@@ -1,19 +1,20 @@
 package com.cclean.terminal.mobileService.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.entity.PageMo;
+import com.cclean.terminal.exception.BusinessException;
+import com.cclean.terminal.mobileService.HotelMService;
 import com.cclean.terminal.mobileService.LinenPackageService;
-import com.cclean.terminal.model2.LinenPackage;
-import com.cclean.terminal.model2.LinenPackageRecord;
-import com.cclean.terminal.model2.LinenPackageStacount;
-import com.cclean.terminal.model2.LinenPackageStatistics;
+import com.cclean.terminal.model2.*;
+import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.vo.LinenPackageVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * @author yulq
@@ -32,6 +33,12 @@ public class LinenPackageServiceImpl implements LinenPackageService {
     @Value("${cloud.url}")
     private String cloudUrl;
 
+    @Resource
+    private HotelMService hotelMService;
+
+    @Resource
+    private ConServiceImpl conService;
+
     /**
      * 布草袋登记
      *
@@ -43,13 +50,16 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      * @return
      */
     @Override
-    public List<String> register(String token, List<String> codes, int type, String color, String batch) {
-        List<String> list = new ArrayList<>();
-//        Set<String> set = new HashSet<>(codes);
-        list.add("CODE0000123");
-        list.add("CODE0000123");
-        list.add("CODE0000123");
-        list.add("CODE0000123");
+    public List<String> register(String token, List<String> codes, int type, String color, String batch) throws BusinessException {
+        Set<String> set = new HashSet<>(codes);
+        String url = cloudUrl + "/linen/api/package/insert";
+        JSONObject param = new JSONObject();
+        param.put("codes", set);
+        param.put("color", color);
+        param.put("linentype", type);
+        param.put("batch", batch);
+        String json = InvokeUtil.invokeString(url, token, param);
+        List<String> list = JSONObject.parseArray(json, String.class);
         return list;
 
     }
@@ -62,11 +72,16 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      * @return
      */
     @Override
-    public boolean update(String token, LinenPackageVO packge) {
-        String url = cloudUrl +"";
+    public boolean update(String token, LinenPackageVO packge) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/update";
         JSONObject param = new JSONObject();
-
-
+        param.put("id", packge.getId());
+        param.put("color", packge.getColor());
+        param.put("linentype", packge.getLinentype());
+        param.put("linenstate", packge.getLinenstate());
+        param.put("batch", packge.getBatch());
+        param.put("washNum", packge.getWashNum());
+        InvokeUtil.invokeString(url, token, param);
         return true;
     }
 
@@ -75,17 +90,24 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      *
      * @param token
      * @param codes
-     * @param linentype    类型
-     * @param usetype  状态
-     * @param userId   使用人
-     * @param hotelId 酒店ID
-     * @param pointId 配送点ID
+     * @param linentype 类型
+     * @param usetype   状态
+     * @param userId    使用人
+     * @param hotelId   酒店ID
+     * @param pointId   配送点ID
      * @return 修改成功
      */
     @Override
-    public boolean circulate(String token, List<String> codes, int linentype, int usetype, String userId, String hotelId, String pointId) {
-
-
+    public boolean circulate(String token, List<String> codes, int linentype, int usetype, String userId, String hotelId, String pointId) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/update";
+        JSONObject param = new JSONObject();
+        param.put("codes", new HashSet<>(codes));
+        param.put("usetype", usetype);
+        param.put("linentype", linentype);
+        param.put("hotelId", hotelId);
+        param.put("pointId", pointId);
+        param.put("userId", userId);
+        InvokeUtil.invokeString(url, token, param);
         return true;
     }
 
@@ -93,80 +115,44 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      * 布草袋分页查询
      *
      * @param token
-     * @param linenPackageVO
+     * @param packageVO
      * @return
      */
     @Override
-    public PageMo<LinenPackage> pagePackage(String token, LinenPackageVO linenPackageVO) {
-        JSONObject param = JSON.parseObject(JSONObject.toJSONString(linenPackageVO));
-        String url = cloudUrl + "";
-        List<LinenPackage> list = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            LinenPackage bag = new LinenPackage();
-            bag.setId("123456" + i);
-            bag.setCode("BAG00000" + i);
-            bag.setRfid("BAG00000" + i);
-            bag.setBatch("10000" + i);
-            bag.setColor("红色");
-            bag.setLinenType(1);
-            bag.setLinenState(1);
-            bag.setWashNum(10);
-            bag.setUsetype(1);
-            bag.setHotelId("053db666f08c402fb58e079c1d81ab79");
-            bag.setHotelName("如家金沙江店");
-            bag.setPointId("095abce4eed845f7afc3b9e0dbe92843");
-            bag.setPointName("2F");
-            bag.setReceiveTime("2018-05-05 14:05:55");
-            bag.setReturnTime("2018-05-10 14:05:55");
-            bag.setUserId("0aaa0e1390324b0b8a4188a194353257");
-            bag.setUserName("张三");
-            bag.setCreator("0aaa0e1390324b0b8a4188a194353257");
-            bag.setCreatorName("张三");
-            bag.setCreateTime("2018-05-05 14:05:55");
-            bag.setModifyTime("2018-05-05 14:05:55");
-            list.add(bag);
+    public PageMo<LinenPackage> pagePackage(String token, LinenPackageVO packageVO) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/page";
+        JSONObject param = JSON.parseObject(JSONObject.toJSONString(packageVO));
+        JSONObject data = InvokeUtil.invokeResult(url, token, param);
+        if (data == null) {
+            return new PageMo<>();
         }
-        return new PageMo<>(list, 1, 3, 3);
+        String listjson = data.getString("list");
+        int total = data.getIntValue("total");
+        List<LinenPackage> list = JSONObject.parseArray(listjson, LinenPackage.class);
+        if (list == null || list.size() == 0) {
+            return new PageMo<>();
+        }
+        return new PageMo<>(list, packageVO.getPageNum(), packageVO.getPageSize(), total);
     }
 
     /**
-     * 根据IDS批量查询布草袋
+     * 根据codes批量查询布草袋
      *
      * @param token
      * @param codes
      * @return
      */
     @Override
-    public List<LinenPackage> listPackage(String token, List<String> codes) {
+    public List<LinenPackage> listPackage(String token, List<String> codes) throws BusinessException {
         List<LinenPackage> list = new ArrayList<>();
         if (codes == null || codes.size() == 0) {
             return list;
         }
-        for (int i = 0; i < 3; i++) {
-            LinenPackage bag = new LinenPackage();
-            bag.setId("123456" + i);
-            bag.setCode("BAG00000" + i);
-            bag.setRfid("BAG00000" + i);
-            bag.setBatch("10000" + i);
-            bag.setColor("蓝色");
-            bag.setLinenType(2);
-            bag.setLinenState(1);
-            bag.setWashNum(5);
-            bag.setUsetype(2);
-            bag.setHotelId("053db666f08c402fb58e079c1d81ab79");
-            bag.setHotelName("如家金沙江店");
-            bag.setPointId("095abce4eed845f7afc3b9e0dbe92843");
-            bag.setPointName("2F");
-            bag.setReceiveTime("2018-05-05 14:05:55");
-            bag.setReturnTime("2018-05-10 14:05:55");
-            bag.setUserId("0aaa0e1390324b0b8a4188a194353257");
-            bag.setUserName("张三");
-            bag.setCreator("0aaa0e1390324b0b8a4188a194353257");
-            bag.setCreatorName("张三");
-            bag.setCreateTime("2018-05-05 14:05:55");
-            bag.setModifyTime("2018-05-05 14:05:55");
-            list.add(bag);
-        }
+        String url = cloudUrl + "/linen/api/package/list";
+        JSONObject param = new JSONObject();
+        param.put("codes", new HashSet<>(codes));
+        String data = InvokeUtil.invokeString(url, token, param);
+        list = JSONObject.parseArray(data, LinenPackage.class);
         return list;
     }
 
@@ -180,54 +166,109 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      * @return
      */
     @Override
-    public PageMo<LinenPackageRecord> record(String token, String code, int pageNum, int pageSize) {
-        List<LinenPackageRecord> list = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            LinenPackageRecord record = new LinenPackageRecord();
-            record.setId("58961240254" + i);
-            record.setPackageId("58961" + i);
-            record.setCode("58961" + i);
-            record.setHotelId("053db666f08c402fb58e079c1d81ab79");
-            record.setHotelName("如家金沙江店");
-            record.setPointId("095abce4eed845f7afc3b9e0dbe92843");
-            record.setPointName("2F");
-            record.setReceiveTime("2018-05-05 14:05:55");
-            record.setReturnTime("2018-05-05 14:05:55");
-            record.setCreator("113456");
-            record.setCreatorName("张三");
-            list.add(record);
+    public PageMo<LinenPackageRecord> record(String token, String code, int pageNum, int pageSize) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/detail/page";
+        JSONObject param = new JSONObject();
+        param.put("code", code);
+        param.put("pageNum", pageNum);
+        param.put("pageSize", pageSize);
+        JSONObject data = InvokeUtil.invokeResult(url, token, param);
+        if (data == null) {
+            return new PageMo<>();
         }
-        return new PageMo<>(list, 1, 4, 5);
+        String listjson = data.getString("list");
+        int total = data.getIntValue("total");
+        List<LinenPackageRecord> list = JSONObject.parseArray(listjson, LinenPackageRecord.class);
+        if (list == null || list.size() == 0) {
+            return new PageMo<>();
+        }
+        Set<String> hotelIds = new HashSet<>();
+        Set<String> pointIds = new HashSet<>();
+        Set<String> userIds = new HashSet<>();
+        for (int i = 0; i < list.size(); i++) {
+            LinenPackageRecord record = list.get(i);
+            hotelIds.add(record.getHotelId());
+            pointIds.add(record.getPointId());
+            userIds.add(record.getCreator());
+        }
+        Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelIds);
+        Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointIds);
+        Map<String, String> users = this.conService.findUsersByIds(userIds, token);
+        for (int i = 0; i < list.size(); i++) {
+            LinenPackageRecord record = list.get(i);
+            String hotelId = record.getHotelId();
+            String pointId = record.getPointId();
+            String userId = record.getCreator();
+            record.setHotelName(hotels.get(hotelId).getName());
+            if (hotelId.equals(pointId)) {
+                record.setPointName(record.getHotelName());
+            } else {
+                record.setPointName(points.get(pointId).getName());
+            }
+            record.setCreatorName(users.get(userId));
+        }
+        return new PageMo<>(list, pageNum, pageSize, total);
     }
 
     /**
      * 查询净布草袋的报表
      *
      * @param token
-     * @param userId 使用人
-     * @param beginNum
-     * @param endNum
+     * @param userId   使用人
+     * @param beginNum 最早天数
+     * @param endNum   最晚天数
      * @return
      */
     @Override
-    public List<LinenPackageStatistics> fineReport(String token, String userId, int beginNum, int endNum) {
-        List<LinenPackageStatistics> list = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            LinenPackageStatistics packageStat = new LinenPackageStatistics();
-            packageStat.setHotelId("053db666f08c402fb58e079c1d81ab79");
-            packageStat.setHotelName("如家金沙江店");
-            List<LinenPackageStacount> stalist = new ArrayList<>();
-            for (int j = 0; j < 2; j++) {
-                LinenPackageStacount count = new LinenPackageStacount();
-                count.setPointId("095abce4eed845f7afc3b9e0dbe92843");
-                count.setPointName("3F");
-                count.setLeft(21);
-                count.setMiddle(80);
-                count.setRight(10);
-                stalist.add(count);
+    public List<LinenPackageStatistics> fineReport(String token, String userId, int beginNum, int endNum) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/clean/report2";
+        JSONObject param = new JSONObject();
+        param.put("userId", userId);
+        param.put("beginNum", beginNum);
+        param.put("endNum", endNum);
+        String datajson = InvokeUtil.invokeString(url, token, param);
+        List<LinenPackageStatistics> list = JSONArray.parseArray(datajson, LinenPackageStatistics.class);
+        if (list == null || list.size() == 0) {
+            return new ArrayList<>();
+        }
+        Set<String> hotelIds = new HashSet<>();
+        Set<String> pointIds = new HashSet<>();
+        for (int i = 0; i < list.size(); i++) {
+            LinenPackageStatistics statistics = list.get(i);
+            String hotelId = statistics.getHotelId();
+            hotelIds.add(hotelId);
+            List<LinenPackageStacount> stacounts = statistics.getHotelData();
+            if (stacounts != null && stacounts.size() > 0) {
+                for (int j = 0; j < stacounts.size(); j++) {
+                    LinenPackageStacount stacount = stacounts.get(j);
+                    String pointId = stacount.getPointId();
+                    if (!hotelId.equals(pointId)) {
+                        pointIds.add(pointId);
+                    }
+                }
             }
-            packageStat.setPackageStatics(stalist);
-            list.add(packageStat);
+        }
+        Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelIds);
+        Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointIds);
+        for (int i = 0; i < list.size(); i++) {
+            LinenPackageStatistics statistics = list.get(i);
+            String hotelId = statistics.getHotelId();
+            statistics.setHotelName(hotels.get(hotelId).getName());
+            List<LinenPackageStacount> stacounts = statistics.getHotelData();
+            if (stacounts != null && stacounts.size() > 0) {
+                for (int j = 0; j < stacounts.size(); j++) {
+                    LinenPackageStacount stacount = stacounts.get(j);
+                    String pointId = stacount.getPointId();
+                    if (pointId != null) {
+                        if (hotelId.equals(pointId)) {
+                            stacount.setPointName("总仓");
+                        } else {
+                            stacount.setPointName(points.get(pointId).getName());
+                        }
+                    }
+                }
+            }
+
         }
         return list;
     }
@@ -236,18 +277,22 @@ public class LinenPackageServiceImpl implements LinenPackageService {
      * 查询脏布草袋的报表
      *
      * @param token
-     * @param userId 使用人
-     * @param beginNum
-     * @param endNum
+     * @param userId   使用人
+     * @param beginNum 最早天数
+     * @param endNum   最晚天数
      * @return
      */
     @Override
-    public LinenPackageStacount dirtyReport(String token, String userId, int beginNum, int endNum) {
-            LinenPackageStacount count = new LinenPackageStacount();
-            count.setLeft(21);
-            count.setMiddle(80);
-            count.setRight(10);
-        return count;
+    public LinenPackageStacount dirtyReport(String token, String userId, int beginNum, int endNum) throws BusinessException {
+        String url = cloudUrl + "/linen/api/package/dirty/report";
+        JSONObject param = new JSONObject();
+        param.put("userId", userId);
+        param.put("beginNum", beginNum);
+        param.put("endNum", endNum);
+        String datajson = InvokeUtil.invokeString(url, token, param);
+        LinenPackageStacount stacount = JSONObject.parseObject(datajson, LinenPackageStacount.class);
+        return stacount;
+
     }
 
 

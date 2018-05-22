@@ -75,6 +75,9 @@ public class linenPackageController extends BaseMController {
     @PostMapping("/update")
     public Result update(HttpServletRequest request, @RequestBody LinenPackageVO packge) throws BusinessException {
         String token = getToken(request);
+        if (packge.getId() == null) {
+            throw new BusinessException("00001", "请传入布草袋ID");
+        }
         boolean bl = this.packageService.update(token, packge);
         return new Result(bl);
     }
@@ -104,14 +107,14 @@ public class linenPackageController extends BaseMController {
         if (usetype != 1 && usetype != 2) {
             throw new BusinessException("00001", "布草袋状态未知");
         }
-        if (StringUtils.isBlank(userId)) {
-            throw new BusinessException("00001", "使用者未知");
-        }
         String hotelId = object.getString("hotelId");
         String pointId = object.getString("pointId");
-        if (linentype == 1 && usetype == 2) {
-            if (StringUtils.isHasEmpty(hotelId, pointId)) {
+        if (usetype == 2) {
+            if (linentype == 1 && StringUtils.isHasEmpty(hotelId, pointId)) {
                 throw new BusinessException("00001", "净布草出库需有酒店配送点");
+            }
+            if (StringUtils.isBlank(userId)) {
+                throw new BusinessException("00001", "使用者未知");
             }
         }
         boolean bl = this.packageService.circulate(token, codes, linentype, usetype, userId, hotelId, pointId);
@@ -151,7 +154,7 @@ public class linenPackageController extends BaseMController {
     public Result listPackage(HttpServletRequest request, @RequestBody String param) throws BusinessException {
         String token = getToken(request);
         if (!param.contains("codes")) {
-            throw new BusinessException("00001", "参数不足");
+            throw new BusinessException("00001", "参数有误");
         }
         JSONObject object = JSONObject.parseObject(param);
         List<String> codes = JSONObject.parseArray(object.getString("codes"), String.class);
@@ -188,7 +191,7 @@ public class linenPackageController extends BaseMController {
      * @param request
      * @return
      */
-    @PostMapping("/fine/reprot")
+    @PostMapping("/fine/report")
     public Result fineReprot(HttpServletRequest request, @RequestBody String param) throws BusinessException {
         String token = getToken(request);
         JSONObject object = JSONObject.parseObject(param);
@@ -211,7 +214,7 @@ public class linenPackageController extends BaseMController {
      * @param request
      * @return
      */
-    @PostMapping("/dirty/reprot")
+    @PostMapping("/dirty/report")
     public Result dirtyReprot(HttpServletRequest request, @RequestBody String param) throws BusinessException {
         String token = getToken(request);
         JSONObject object = JSONObject.parseObject(param);
@@ -228,4 +231,21 @@ public class linenPackageController extends BaseMController {
         return new Result(stacount);
     }
 
+    /**
+     * 脏布草袋捆扎
+     *
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    public Result strapp(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        if (!param.contains("codes")) {
+            throw new BusinessException("00001", "参数有误");
+        }
+        JSONObject object = JSONObject.parseObject(param);
+        List<String> codes = JSONObject.parseArray(object.getString("codes"), String.class);
+        return null;
+    }
 }

@@ -19,9 +19,9 @@ public class LinenPackage implements Serializable{
     //批次号
     private String batch;
     //类型 1净 2脏
-    private Integer linenType;
+    private Integer linentype;
     //状态-1:报废;1:正常
-    private Integer linenState;
+    private Integer linenstate;
     //洗涤次数
     private Integer washNum;
     //使用状态 1入库2出库
@@ -91,20 +91,20 @@ public class LinenPackage implements Serializable{
         this.batch = batch;
     }
 
-    public Integer getLinenType() {
-        return linenType;
+    public Integer getLinentype() {
+        return linentype;
     }
 
-    public void setLinenType(Integer linenType) {
-        this.linenType = linenType;
+    public void setLinentype(Integer linentype) {
+        this.linentype = linentype;
     }
 
-    public Integer getLinenState() {
-        return linenState;
+    public Integer getLinenstate() {
+        return linenstate;
     }
 
-    public void setLinenState(Integer linenState) {
-        this.linenState = linenState;
+    public void setLinenstate(Integer linenstate) {
+        this.linenstate = linenstate;
     }
 
     public Integer getWashNum() {

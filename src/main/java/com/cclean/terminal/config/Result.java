@@ -43,7 +43,7 @@ public class Result {
         return new Result(Constant.RET_CODE_OBJ_NULL, Constant.RET_INFO_OBJ_NULL);
     }
 
-    private Result(String retCode, String retInfo) {
+    public Result(String retCode, String retInfo) {
         this.retCode = retCode;
         this.retInfo = retInfo;
     }

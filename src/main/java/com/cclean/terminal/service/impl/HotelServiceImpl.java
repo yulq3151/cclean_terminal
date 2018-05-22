@@ -216,8 +216,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public Hotel findHotelById(String accessToken, IdVO idVO) throws BusinessException {
         Hotel hotel = new Hotel();
-        if (StringUtils.isHasEmpty(accessToken, idVO.getId())) {
-            throw new BusinessException("00002", "参数错误");
+        if (StringUtils.isHasEmpty(idVO.getId())) {
+            return null;
         }
         String url = linenUrl + hotelInfoUrl;
         JSONObject jsonParam = new JSONObject();
@@ -251,8 +251,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public DeliveryPoint findPointById(String accessToken, IdVO idVO) throws BusinessException {
         DeliveryPoint deliveryPoint = new DeliveryPoint();
-        if (StringUtils.isHasEmpty(accessToken, idVO.getId())) {
-            throw new BusinessException("00002", "参数错误");
+        if (StringUtils.isHasEmpty(idVO.getId())) {
+            return null;
         }
         String url = linenUrl + deliveryPointInfoUrl;
         JSONObject jsonParam = new JSONObject();
