@@ -24,6 +24,7 @@ public class CagecarController extends BaseMController {
 
     @Resource
     private CagecarService cagecarService;
+
     /**
      *  笼车登记
      * @param request
@@ -41,5 +42,41 @@ public class CagecarController extends BaseMController {
         return null;
     }
 
+    /**
+     *  笼车查询
+     * @param request
+     * @param param
+     * @return
+     */
+    @RequestMapping("/list")
+    public Result list(HttpServletRequest request,@RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject obj = JSONArray.parseObject(param);
+        List<String> codes = JSONArray.parseArray(obj.getString("codes"), String.class);
+        if (codes == null || codes.size()==0) {
+            throw new BusinessException("00001","参数不足");
+        }
+        return null;
+    }
+
+    /**
+     *  笼车使用
+     * @param request
+     * @param param
+     * @return
+     */
+    @RequestMapping("/borrow")
+    public Result borrow(HttpServletRequest request,@RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject obj = JSONArray.parseObject(param);
+        List<String> codes = JSONArray.parseArray(obj.getString("codes"), String.class);
+        String userId = obj.getString("userId");
+        String factoryId = obj.getString("factoryId");
+        int status = obj.getIntValue("status");
+        if (codes == null || codes.size()==0) {
+            throw new BusinessException("00001","参数不足");
+        }
+        return null;
+    }
 
 }

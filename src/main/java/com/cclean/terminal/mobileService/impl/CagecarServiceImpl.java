@@ -21,7 +21,7 @@ public class CagecarServiceImpl implements CagecarService {
      *
      * @param token
      * @param codes
-     * @return 登记成功的笼车ids??
+     * @return 登记成功的笼车ids
      */
     public List<String> register(String token, List<String> codes) {
 
