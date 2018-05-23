@@ -27,7 +27,7 @@ import java.util.List;
  **/
 @RestController
 @RequestMapping("/package")
-public class linenPackageController extends BaseMController {
+public class LinenPackageController extends BaseMController {
 
     @Resource
     private LinenPackageService packageService;
@@ -239,6 +239,7 @@ public class linenPackageController extends BaseMController {
      * @return
      * @throws BusinessException
      */
+    @PostMapping("/ties")
     public Result strapp(HttpServletRequest request, @RequestBody String param) throws BusinessException {
         String token = getToken(request);
         if (!param.contains("codes")) {

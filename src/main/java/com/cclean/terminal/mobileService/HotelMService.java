@@ -27,4 +27,6 @@ public interface HotelMService {
     HotelBo simple(String token, String id) throws BusinessException;
 
     Map<String,HotelBo> findHotelsByIds(Set<String> ids) throws BusinessException;
+
+    Map<String, String> findHotelName(Set<String> ids) throws BusinessException;
 }

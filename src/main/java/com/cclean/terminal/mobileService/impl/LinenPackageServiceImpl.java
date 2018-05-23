@@ -191,19 +191,19 @@ public class LinenPackageServiceImpl implements LinenPackageService {
             pointIds.add(record.getPointId());
             userIds.add(record.getCreator());
         }
-        Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelIds);
-        Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointIds);
+        Map<String, String> hotels = this.hotelMService.findHotelName(hotelIds);
+        Map<String, String> points = this.conService.findPointName(pointIds);
         Map<String, String> users = this.conService.findUsersByIds(userIds, token);
         for (int i = 0; i < list.size(); i++) {
             LinenPackageRecord record = list.get(i);
             String hotelId = record.getHotelId();
             String pointId = record.getPointId();
             String userId = record.getCreator();
-            record.setHotelName(hotels.get(hotelId).getName());
+            record.setHotelName(hotels.get(hotelId));
             if (hotelId.equals(pointId)) {
-                record.setPointName(record.getHotelName());
+                record.setPointName("总仓");
             } else {
-                record.setPointName(points.get(pointId).getName());
+                record.setPointName(points.get(pointId));
             }
             record.setCreatorName(users.get(userId));
         }
@@ -248,12 +248,12 @@ public class LinenPackageServiceImpl implements LinenPackageService {
                 }
             }
         }
-        Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelIds);
-        Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointIds);
+        Map<String, String> hotels = this.hotelMService.findHotelName(hotelIds);
+        Map<String, String> points = this.conService.findPointName(pointIds);
         for (int i = 0; i < list.size(); i++) {
             LinenPackageStatistics statistics = list.get(i);
             String hotelId = statistics.getHotelId();
-            statistics.setHotelName(hotels.get(hotelId).getName());
+            statistics.setHotelName(hotels.get(hotelId));
             List<LinenPackageStacount> stacounts = statistics.getHotelData();
             if (stacounts != null && stacounts.size() > 0) {
                 for (int j = 0; j < stacounts.size(); j++) {
@@ -263,12 +263,11 @@ public class LinenPackageServiceImpl implements LinenPackageService {
                         if (hotelId.equals(pointId)) {
                             stacount.setPointName("总仓");
                         } else {
-                            stacount.setPointName(points.get(pointId).getName());
+                            stacount.setPointName(points.get(pointId));
                         }
                     }
                 }
             }
-
         }
         return list;
     }

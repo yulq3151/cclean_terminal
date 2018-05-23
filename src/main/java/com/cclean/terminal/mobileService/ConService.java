@@ -33,6 +33,8 @@ public interface ConService {
 
     Map<String,DeliveryPointM> findPointsByIds(Set<String> ids) throws BusinessException;
 
+    Map<String,String> findPointName(Set<String> ids) throws BusinessException;
+
     VersionInfo versionUpdate(String param, String token) throws BusinessException;
 
     Map<String,String> findUsersByIds(Set<String> ids, String token) throws BusinessException;

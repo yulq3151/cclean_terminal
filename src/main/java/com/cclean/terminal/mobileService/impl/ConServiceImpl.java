@@ -241,6 +241,33 @@ public class ConServiceImpl implements ConService {
         return map;
     }
 
+    /**
+     *  根据配送点ID查询名称，返回map对象，key是配送点ID，value是配送点名称
+     * @param ids
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public Map<String,String> findPointName(Set<String> ids) throws BusinessException {
+        String url = cloudUrl + pointslisturl;
+        JSONObject param = new JSONObject();
+        param.put("ids", ids);
+        String httpEntitys = HttpUtil.doPost(url, "", param);
+        logger.info("根据配送点ID查询 Responses: {}", httpEntitys);
+        JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
+        String retCode = jsonObject1.getString("retCode");
+        if (!retCode.equals("00000")) {
+            throw new BusinessException(retCode,jsonObject1.getString("retInfo"));
+        }
+        List<DeliveryPointM> pointMS = JSONObject.parseArray(jsonObject1.getString("data"), DeliveryPointM.class);
+        Map<String,String> map = new HashMap<>();
+        for (int i = 0; i < pointMS.size(); i++) {
+            DeliveryPointM pointM = pointMS.get(i);
+            map.put(pointM.getId(),pointM.getName());
+        }
+        return map;
+    }
+
 
     /**
      *  版本更新

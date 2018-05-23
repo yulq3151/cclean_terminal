@@ -82,8 +82,8 @@ public class HotelMServiceImpl implements HotelMService {
             return listPageMo;
         }
         Integer total = dataJson.getInteger("total");
-        JSONArray jsonObject = dataJson.getJSONArray("list");
-        List<HotelBo> hotelBos = JSONObject.parseArray(jsonObject.toJSONString(), HotelBo.class);
+        String list = dataJson.getString("list");
+        List<HotelBo> hotelBos = JSONObject.parseArray(list, HotelBo.class);
         PageVO pageVO = new PageVO();
         pageVO.setPageNum(hotelVO.getPageNum());
         pageVO.setPageSize(hotelVO.getPageSize());
@@ -101,6 +101,9 @@ public class HotelMServiceImpl implements HotelMService {
      */
     @Override
     public HotelM findById(String token, String id) throws BusinessException {
+        if (id == null) {
+            return null;
+        }
         String url = linenUrl + hotelInfoUrl;
         JSONObject param = new JSONObject();
         param.put("id", id);
@@ -129,6 +132,9 @@ public class HotelMServiceImpl implements HotelMService {
      */
     @Override
     public List<DeliveryPointM> listpoints(String token, String hotelId) throws BusinessException {
+        if (hotelId == null) {
+            return new ArrayList<>();
+        }
         String url = linenUrl + deliveryPointsUrl;
         JSONObject param = new JSONObject();
         param.put("hotelId", hotelId);
@@ -157,6 +163,9 @@ public class HotelMServiceImpl implements HotelMService {
      */
     @Override
     public HotelBo simple(String token, String id) throws BusinessException {
+        if (id == null) {
+            return null;
+        }
         String url = linenUrl + hotelInfoUrl;
         JSONObject param = new JSONObject();
         param.put("id", id);
@@ -185,6 +194,9 @@ public class HotelMServiceImpl implements HotelMService {
      */
     @Override
     public Map<String, HotelBo> findHotelsByIds(Set<String> ids) throws BusinessException {
+        if (ids.isEmpty()) {
+            return new HashMap<>();
+        }
         String url = cloudUrl + hotellistUrl;
         JSONObject param = new JSONObject();
         param.put("ids", ids);
@@ -200,6 +212,37 @@ public class HotelMServiceImpl implements HotelMService {
         for (int i = 0; i < hotelBos.size(); i++) {
             HotelBo hotelBo = hotelBos.get(i);
             map.put(hotelBo.getId(), hotelBo);
+        }
+        return map;
+    }
+
+    /**
+     * 根据酒店ID查询酒店，返回map对象，key是酒店ID，value是酒店名称
+     *
+     * @param ids
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public Map<String, String> findHotelName(Set<String> ids) throws BusinessException {
+        if (ids.isEmpty()) {
+            return new HashMap<>();
+        }
+        String url = cloudUrl + hotellistUrl;
+        JSONObject param = new JSONObject();
+        param.put("ids", ids);
+        String httpEntitys = HttpUtil.doPost(url, "", param);
+        logger.info("根据酒店ID查询酒店 Responses: {}", httpEntitys);
+        JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
+        String retCode = jsonObject1.getString("retCode");
+        if (!retCode.equals("00000")) {
+            throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
+        }
+        List<HotelBo> hotelBos = JSONObject.parseArray(jsonObject1.getString("data"), HotelBo.class);
+        Map<String, String> map = new HashMap<>();
+        for (int i = 0; i < hotelBos.size(); i++) {
+            HotelBo hotelBo = hotelBos.get(i);
+            map.put(hotelBo.getId(), hotelBo.getName());
         }
         return map;
     }
