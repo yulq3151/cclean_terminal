@@ -2,8 +2,8 @@ package com.cclean.terminal.service;
 
 import com.cclean.terminal.config.Result;
 import com.cclean.terminal.exception.BusinessException;
-import com.cclean.terminal.model.*;
-import com.cclean.terminal.model2.LinenPackM;
+import com.cclean.terminal.model.LinenPack;
+import com.cclean.terminal.model.SkuInfoEntity;
 import com.cclean.terminal.vo.*;
 
 import java.util.List;
