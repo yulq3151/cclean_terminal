@@ -100,7 +100,7 @@ public class HotelMServiceImpl implements HotelMService {
      * @throws BusinessException
      */
     @Override
-    public HotelM getOne(String token, String id) throws BusinessException {
+    public HotelM findById(String token, String id) throws BusinessException {
         String url = linenUrl + hotelInfoUrl;
         JSONObject param = new JSONObject();
         param.put("id", id);

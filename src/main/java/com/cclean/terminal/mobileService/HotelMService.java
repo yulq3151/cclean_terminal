@@ -20,7 +20,7 @@ import java.util.Set;
 public interface HotelMService {
     PageMo list(String accessToken, HotelVO hotelVO) throws BusinessException;
 
-    HotelM getOne(String token, String id) throws BusinessException;
+    HotelM findById(String token, String id) throws BusinessException;
 
     List<DeliveryPointM> listpoints(String token, String hotelId) throws BusinessException;
 

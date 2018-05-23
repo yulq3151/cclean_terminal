@@ -59,7 +59,10 @@ public class HotelMController extends BaseMController {
     @PostMapping(value = "/info")
     public Result hotel(@RequestBody IdVO idVO, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
-        return new Result(hotelMService.getOne(token, idVO.getId()));
+        if (idVO.getId()==null) {
+            throw new BusinessException("00001","请传入酒店ID");
+        }
+        return new Result(hotelMService.findById(token, idVO.getId()));
     }
 
     /**
@@ -72,6 +75,9 @@ public class HotelMController extends BaseMController {
     @PostMapping("/hpoints")
     public Result getPointsByhotelId(@RequestBody IdVO idVO, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
+        if (idVO.getId()==null) {
+            throw new BusinessException("00001","请传入酒店ID");
+        }
         return new Result(hotelMService.listpoints(token, idVO.getId()));
     }
 
