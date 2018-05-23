@@ -3,6 +3,7 @@ package com.cclean.terminal.mobileService.impl;
 import com.cclean.terminal.mobileService.CagecarService;
 import com.cclean.terminal.model2.Cagecar;
 import com.cclean.terminal.model2.CagecarUseLog;
+import com.cclean.terminal.model2.LinenPackM;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -101,9 +102,9 @@ public class CagecarServiceImpl implements CagecarService {
      *  查询记录下的打扎单
      * @param token
      * @param logId     使用记录ID
-     * @return          打扎单号
+     * @return          打扎单详情
      */
-    public List<String> findPack(String token,String logId){
+    public List<LinenPackM> findPacks(String token, String logId){
         return null;
     }
 }
