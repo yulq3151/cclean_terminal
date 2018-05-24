@@ -352,6 +352,12 @@ public class LinenServiceImpl implements LinenService {
         //未登记的rfids
         List<String> unregist = new ArrayList<>(rfids);
         unregist.removeAll(list);
+        if (unregist.size()>0) {
+            JSONObject obj = new JSONObject();
+            obj.put("skuId","00000000000000000000000000000000");
+            obj.put("count",unregist.size());
+            array.add(obj);
+        }
         //基础服务
         url = cloudUrl+"/cloud/order/order/recheck";
         param.clear();
@@ -359,7 +365,7 @@ public class LinenServiceImpl implements LinenService {
         param.put("rfids",rfids);
         param.put("skuStatisticss",array);          //rfids统计sku数量
         param.put("estimateTotal",skucount);        //原订sku单数量
-        param.put("unregisteredAmout",unregist.size());        //原订sku单数量
+//        param.put("unregisteredAmout",unregist.size());        //未登记数量
         String str = InvokeUtil.invokeString(url, token, param);
         //变更rfids的状态
         String stateUrl= cloudUrl+"/linen/api/linen/update";
