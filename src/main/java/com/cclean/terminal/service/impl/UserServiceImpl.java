@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         logger.info("userinfo：respose:{}", json);
         JSONObject jsonObject1 = JSONObject.parseObject(json);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         UserInfo userInfo = JSONObject.parseObject(jsonObject1.getString("data"), UserInfo.class);
@@ -184,7 +184,7 @@ public class UserServiceImpl implements UserService {
         logger.info("userinfo：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         UserInfo userInfo = JSONObject.parseObject(jsonObject1.getString("data"), UserInfo.class);
@@ -247,7 +247,7 @@ public class UserServiceImpl implements UserService {
         logger.info("用户列表：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<UserInfo> userInfos = JSONObject.parseArray(jsonObject1.getString("data"), UserInfo.class);

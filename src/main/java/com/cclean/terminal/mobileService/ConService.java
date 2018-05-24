@@ -2,6 +2,7 @@ package com.cclean.terminal.mobileService;
 
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
+import com.cclean.terminal.model.Factory;
 import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.DeliveryPointM;
 import com.cclean.terminal.model2.LinenPackM;
@@ -42,4 +43,6 @@ public interface ConService {
     Map<String,Sku> findSkusByIds(Set<String> ids) throws BusinessException;
 
     PageMo<UserInfo> findUsersByType(String token, int type, int modelType, int pageNum, int pageSize) throws BusinessException;
+
+    List<Factory> findFactorys(int type, List<String> fids) throws BusinessException;
 }

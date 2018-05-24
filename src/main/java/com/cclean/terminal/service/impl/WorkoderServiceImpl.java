@@ -72,7 +72,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         logger.info("生成任务单 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }
@@ -124,7 +124,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         logger.info("任务单详情 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }

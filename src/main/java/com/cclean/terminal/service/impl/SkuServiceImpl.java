@@ -343,7 +343,7 @@ public class SkuServiceImpl implements SkuService {
         logger.info("sku列表：respose:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<Sku> skuList = JSONObject.parseArray(jsonObject1.getString("data"), Sku.class);
@@ -461,6 +461,8 @@ public class SkuServiceImpl implements SkuService {
                 recestatis.add(statis);
             }
         }
+        Collections.sort(recestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
+        Collections.sort(unrecestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
         received.setReceskuStatisticsList(recestatis);
         received.setUnReceskuStatisticsList(unrecestatis);
         return received;

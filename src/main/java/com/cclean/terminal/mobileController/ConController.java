@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.ConService;
+import com.cclean.terminal.model.Factory;
 import com.cclean.terminal.model.Result;
 import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.StringUtils;
@@ -195,6 +196,22 @@ public class ConController extends BaseMController {
         }
         PageMo<UserInfo> users = this.conService.findUsersByType(token, type, modelType, pageNum, pageSize);
         return new Result(users);
+    }
+
+    /**
+     *  查询工厂列表
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/factory/query")
+    public Result findFactory(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        JSONObject object = JSONObject.parseObject(param);
+        int type = object.getIntValue("type");
+        List<String> factoryIds = JSONArray.parseArray(object.getString("factoryIds"), String.class);
+        List<Factory> factorys = this.conService.findFactorys(type, factoryIds);
+        return new Result(factorys);
     }
 
 }

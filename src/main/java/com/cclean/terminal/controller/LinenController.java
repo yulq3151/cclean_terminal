@@ -104,8 +104,8 @@ public class LinenController extends BaseController {
     public Result recheck(@RequestBody(required = false) LinenRecheckVO linenRecheckVO, HttpServletRequest request) {
         if (linenRecheckVO == null) return Result.paramNull();
         logger.info(" recheck linenRecheckVO value is:" + linenRecheckVO);
-
-        return linenService.recheck(getToken(request), linenRecheckVO);
+        //TODO
+        return null;
     }
 
     /**

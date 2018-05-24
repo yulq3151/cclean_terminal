@@ -74,7 +74,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("条件查询酒店列表 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObj.getString("retInfo"));
         }
         JSONObject dataJson = jsonObj.getJSONObject("page");
@@ -111,7 +111,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("酒店详情所有信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         String hotel = jsonObject1.getString("hotel");
@@ -142,7 +142,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("酒店下的配送点 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         String list = jsonObject1.getString("list");
@@ -173,7 +173,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("酒店的简单信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         String hotel1 = jsonObject1.getString("hotel");
@@ -204,7 +204,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("根据酒店ID查询酒店 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<HotelBo> hotelBos = JSONObject.parseArray(jsonObject1.getString("data"), HotelBo.class);
@@ -235,7 +235,7 @@ public class HotelMServiceImpl implements HotelMService {
         logger.info("根据酒店ID查询酒店 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<HotelBo> hotelBos = JSONObject.parseArray(jsonObject1.getString("data"), HotelBo.class);
