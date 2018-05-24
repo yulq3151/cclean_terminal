@@ -79,4 +79,37 @@ public class CagecarController extends BaseMController {
         return null;
     }
 
+    /**
+     *  笼车装货
+     * @param request
+     * @param param
+     * @return
+     */
+    @RequestMapping("/load")
+    public Result load(HttpServletRequest request,@RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject obj = JSONArray.parseObject(param);
+        List<String> codes = JSONArray.parseArray(obj.getString("codes"), String.class);
+        String userId = obj.getString("userId");
+        String factoryId = obj.getString("factoryId");
+        int status = obj.getIntValue("status");
+        if (codes == null || codes.size()==0) {
+            throw new BusinessException("00001","参数不足");
+        }
+        return null;
+    }
+
+    /**
+     *  笼车货物明细
+     * @param request
+     * @param param
+     * @return
+     */
+    @RequestMapping("/packs")
+    public Result findPacksByCode(HttpServletRequest request,@RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+
+        return null;
+    }
+
 }

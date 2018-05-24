@@ -91,17 +91,17 @@ public class CagecarServiceImpl implements CagecarService {
      *  笼车配货
      * @param token
      * @param logId     使用记录的id
-     * @param zcodes    打扎单号
+     * @param kzcodes    打扎单号
      * @return          使用记录ID
      */
-    public String packCage(String token,String logId,List<String> zcodes){
+    public String load(String token,String logId,List<String> kzcodes){
         return null;
     }
 
     /**
      *  查询记录下的打扎单
      * @param token
-     * @param logId     使用记录ID
+     * @param logId     使用记录IDk
      * @return          打扎单详情
      */
     public List<LinenPackM> findPacks(String token, String logId){
