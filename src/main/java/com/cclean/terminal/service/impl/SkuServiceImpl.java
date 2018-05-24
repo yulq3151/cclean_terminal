@@ -78,7 +78,7 @@ public class SkuServiceImpl implements SkuService {
             List<String> unregisteredList = new ArrayList<>();
             // 已登记rifd列表
             List<String> registeredList = new ArrayList<>();
-            ;
+
             JSONArray linenArray = jsonObj.getJSONArray("data");
             if (linenArray == null) return Result.objNull();
 

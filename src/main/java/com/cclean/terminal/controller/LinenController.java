@@ -100,17 +100,9 @@ public class LinenController extends BaseController {
         if (ids == null || ids.size() == 0) {
             throw new BusinessException("00001", "请传入订单ID");
         }
-        Set<String> set = new HashSet<>(ids);
-        if (ids.size() != set.size()) {
-            throw new BusinessException("00001", "订单有重复!请重试");
-        }
         List<String> rfids = linenRecheckVO.getRfids();
         if (rfids == null || rfids.size() == 0) {
             throw new BusinessException("00001", "请传入rfids");
-        }
-        set = new HashSet<>(rfids);
-        if (rfids.size() != set.size()) {
-            throw new BusinessException("00001", "rfid有重复!请重试");
         }
         return this.linenService.recheck(token, ids, rfids);
     }
