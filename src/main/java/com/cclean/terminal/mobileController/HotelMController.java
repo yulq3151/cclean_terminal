@@ -1,6 +1,5 @@
 package com.cclean.terminal.mobileController;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.HotelMService;
 import com.cclean.terminal.model.Result;
@@ -14,9 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author yulq
@@ -62,7 +59,10 @@ public class HotelMController extends BaseMController {
     @PostMapping(value = "/info")
     public Result hotel(@RequestBody IdVO idVO, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
-        return new Result(hotelMService.getOne(token, idVO.getId()));
+        if (idVO.getId()==null) {
+            throw new BusinessException("00001","请传入酒店ID");
+        }
+        return new Result(hotelMService.findById(token, idVO.getId()));
     }
 
     /**
@@ -75,6 +75,9 @@ public class HotelMController extends BaseMController {
     @PostMapping("/hpoints")
     public Result getPointsByhotelId(@RequestBody IdVO idVO, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
+        if (idVO.getId()==null) {
+            throw new BusinessException("00001","请传入酒店ID");
+        }
         return new Result(hotelMService.listpoints(token, idVO.getId()));
     }
 

@@ -84,7 +84,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         logger.info("生成配送单信息：{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObj.getString("retInfo"));
         }
         JSONObject dataJson = jsonObj.getJSONObject("data");
@@ -134,7 +134,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         logger.info("配送单详情：{}" + httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }

@@ -9,6 +9,8 @@ import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
 import com.cclean.terminal.vo.ZPickVo;
 
+import java.util.List;
+
 /**
  * @author yulq
  * @create 2018-04-12 21:33
@@ -16,9 +18,9 @@ import com.cclean.terminal.vo.ZPickVo;
  **/
 public interface OrderMService {
 
-    PageMo orderlist(String token,OrderVO orderVO) throws BusinessException;
+    PageMo orderlist(String token, OrderVO orderVO) throws BusinessException;
 
-    Order orderinfo(String token,String id) throws BusinessException;
+    Order orderinfo(String token, String id) throws BusinessException;
 
     PageMo pickorderlist(String token, OrderVO orderVO) throws BusinessException;
 
@@ -33,4 +35,6 @@ public interface OrderMService {
     PageMo deliveryorderlist(String token, OrderVO orderVO) throws BusinessException;
 
     DeliveryOrder deliveryOrderinfo(String token, String id) throws BusinessException;
+
+    boolean updateDeliveryOrder(String token, String deliveryId, List<String> codes);
 }

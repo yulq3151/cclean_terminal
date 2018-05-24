@@ -99,7 +99,7 @@ public class PropertyServiceImpl implements PropertyService{
         logger.info("版本更新：respose:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
 

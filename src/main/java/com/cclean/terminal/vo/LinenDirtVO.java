@@ -1,6 +1,5 @@
 package com.cclean.terminal.vo;
 
-import com.cclean.terminal.model.SkuStatistics;
 import com.cclean.terminal.model.SkuStatisticsCopy;
 
 import java.util.List;

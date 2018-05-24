@@ -72,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
         logger.info("订单详情：respose:{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retInfo, retCode);
         }

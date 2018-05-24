@@ -1,12 +1,9 @@
 package com.cclean.terminal.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.config.Result;
-import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model2.VersionInfo;
 import com.cclean.terminal.service.*;
-import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.HotelVO;
 import com.cclean.terminal.vo.PageVO;
 import com.cclean.terminal.vo.PointVO;
@@ -16,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,9 +46,6 @@ public class CommonController extends BaseController {
 
     @Autowired
     ScrapService scrapService;
-
-    @Resource
-    private DeliverylineService deliverylineService;
 
     /**
      * 品牌列表
@@ -184,24 +177,6 @@ public class CommonController extends BaseController {
 
 
     /**
-     * 获取配送线路
-     *
-     * @param pageVO
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "/deliverylines", method = RequestMethod.POST)
-    @ResponseBody
-    public com.cclean.terminal.model.Result getdeliveryline(@RequestBody(required = false) PageVO pageVO, HttpServletRequest request) {
-        try {
-            PageMo pageMo = deliverylineService.getdeliverylines(getToken(request), pageVO);
-            return new com.cclean.terminal.model.Result(pageMo);
-        } catch (BusinessException e) {
-            return new com.cclean.terminal.model.Result(e.getErrorCode(), e.getMessage());
-        }
-    }
-
-    /**
      * 版本更新
      *
      * @param param
@@ -213,14 +188,6 @@ public class CommonController extends BaseController {
     @ResponseBody
     public com.cclean.terminal.model.Result version(@RequestBody(required = false) String param, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
-        if (!param.contains("versionCode")) {
-            return new com.cclean.terminal.model.Result("00001", "参数有误！请重试");
-        }
-        JSONObject object = JSONObject.parseObject(param);
-        String code = object.getString("versionCode");
-        if (StringUtils.isBlank(code)) {
-            return new com.cclean.terminal.model.Result("00001", "未获取到当前版本号");
-        }
         VersionInfo versionInfo = this.propertyService.versionUpdate(param, token);
         Map<String, String> map = new HashMap<>();
         map.put("versionid", versionInfo.getVersionid());

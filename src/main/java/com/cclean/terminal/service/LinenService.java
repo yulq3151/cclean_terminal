@@ -2,8 +2,8 @@ package com.cclean.terminal.service;
 
 import com.cclean.terminal.config.Result;
 import com.cclean.terminal.exception.BusinessException;
-import com.cclean.terminal.model.*;
-import com.cclean.terminal.model2.LinenPackM;
+import com.cclean.terminal.model.LinenPack;
+import com.cclean.terminal.model.SkuInfoEntity;
 import com.cclean.terminal.vo.*;
 
 import java.util.List;
@@ -15,15 +15,15 @@ public interface LinenService {
 
     Result linens(String accessToken, RfidsVO rfidsVO) throws BusinessException;
 
-    Result update(String accessToken,LinenUpdateVO linenUpdateVO);
+    Result update(String accessToken, LinenUpdateVO linenUpdateVO);
 
-    Result scrap(String accessToken,LinenScrapVO linenScrapVO);
+    Result scrap(String accessToken, LinenScrapVO linenScrapVO);
 
-    Result dirt(String accessToken,LinenDirtVO linenDirtVO) throws BusinessException;
+    Result dirt(String accessToken, LinenDirtVO linenDirtVO) throws BusinessException;
 
-    Result recheck(String accessToken,LinenRecheckVO linenRecheckVO);
+    Result recheck(String token, List<String> ids, List<String> rfids) throws BusinessException;
 
-    Result pack(String accessToken,RfidsVO rfidsVO);
+    Result pack(String accessToken, RfidsVO rfidsVO);
 
     Result types(String accessToken);
 
