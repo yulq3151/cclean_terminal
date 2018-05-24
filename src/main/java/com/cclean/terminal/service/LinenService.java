@@ -21,7 +21,7 @@ public interface LinenService {
 
     Result dirt(String accessToken, LinenDirtVO linenDirtVO) throws BusinessException;
 
-    Result recheck(String accessToken, LinenRecheckVO linenRecheckVO) throws BusinessException;
+    Result recheck(String token, List<String> ids, List<String> rfids) throws BusinessException;
 
     Result pack(String accessToken, RfidsVO rfidsVO);
 

@@ -301,15 +301,73 @@ public class LinenServiceImpl implements LinenService {
 
     /**
      *  布草复核
-     * @param accessToken
-     * @param linenRecheckVO
+     * @param token
+     * @param ids
+     * @param rfids
      * @return
      * @throws BusinessException
      */
     @Override
-    public Result recheck(String accessToken, LinenRecheckVO linenRecheckVO) throws BusinessException {
-        //TODO
-        return null;
+    public Result recheck(String token, List<String> ids, List<String> rfids) throws BusinessException {
+        String url = cloudUrl+"/linen/api/linen/alreadyinsert";
+        JSONObject param = new JSONObject();
+        param.put("rfids",rfids);
+        String data = InvokeUtil.invokeString(url, token, param);
+        //已登记rfids
+        List<String> list = JSONArray.parseArray(data, String.class);
+        //统计sku数量
+        url = cloudUrl+"/linen/api/sku/statistic";
+        param.put("rfids",list);
+        String datajson = InvokeUtil.invokeString(url, token, param);
+        List<JSONObject> array = JSONArray.parseArray(datajson, JSONObject.class);
+        //查询订单的数量
+        url = cloudUrl+"/cloud/order/order/list";
+        param.clear();
+        param.put("ids",ids);
+        String dataorder = InvokeUtil.invokeString(url, token, param);
+        List<JSONObject> orders = JSONArray.parseArray(dataorder, JSONObject.class);
+        if (orders.size() != ids.size()) {
+            throw new BusinessException("00001","传入订单号有误，未查询到相关订单");
+        }
+        Map<String,Integer> skucount = new HashMap<>();
+        if (orders != null && orders.size()>0) {
+            for (int i = 0; i < orders.size(); i++) {
+                JSONObject order = orders.get(i);
+                JSONArray skus = order.getJSONArray("skus");
+                if (skus!=null && skus.size()>0) {
+                    for (int j = 0; j < skus.size(); j++) {
+                        JSONObject sku = skus.getJSONObject(j);
+                        String skuId = sku.getString("skuId");
+                        Integer total = sku.getInteger("total");
+                        if (skucount.containsKey(skuId)) {
+                            Integer count = skucount.get(skuId);
+                            skucount.put(skuId,count+total);
+                        }else {
+                            skucount.put(skuId,total);
+                        }
+                    }
+                }
+            }
+        }
+        //未登记的rfids
+        List<String> unregist = new ArrayList<>(rfids);
+        unregist.removeAll(list);
+        //基础服务
+        url = cloudUrl+"/cloud/order/order/recheck";
+        param.clear();
+        param.put("basiss",ids);
+        param.put("rfids",rfids);
+        param.put("skuStatisticss",array);          //rfids统计sku数量
+        param.put("estimateTotal",skucount);        //原订sku单数量
+        param.put("unregisteredAmout",unregist.size());        //原订sku单数量
+        String str = InvokeUtil.invokeString(url, token, param);
+        //变更rfids的状态
+        String stateUrl= cloudUrl+"/linen/api/linen/update";
+        param.clear();
+        param.put("transferState",1);
+        param.put("rfids",list);
+        HttpUtil.doPost(stateUrl,token,param);
+        return new Result("00000","操作成功");
     }
 
     @Override
