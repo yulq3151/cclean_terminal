@@ -8,9 +8,11 @@ import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model.SkuExtend;
+import com.cclean.terminal.model.SkuReceived;
 import com.cclean.terminal.model.SkuStatistics;
 import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.util.HttpUtil;
+import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.PageVO;
@@ -60,12 +62,12 @@ public class SkuServiceImpl implements SkuService {
             String js = JSONArray.toJSONString(rfidsVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("单据下的sku：respose:{}",httpEntitys);
+            logger.info("已登记的的sku：respose:{}",httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}",url,retCode,retInfo);
+                logger.error("url:{},retCode:{},retInfo:{}",url,retCode,retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -134,7 +136,7 @@ public class SkuServiceImpl implements SkuService {
             jsonParam.put("transferState", "1");
             jsonParam.put("timeNum", "8");
             httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("更改布草状态：respose:{}",httpEntitys);
+            logger.info("查询布草状态：respose:{}",httpEntitys);
             jsonObj = JSONObject.parseObject(httpEntitys);
             retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -143,14 +145,10 @@ public class SkuServiceImpl implements SkuService {
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
-            JSONArray receivedArray = jsonObj.getJSONArray("data");
-            if (receivedArray == null) return Result.objNull();
-
-            /*for (int n = 0, m = receivedArray.size(); n < m; n++) {
-                String  rfid = receivedArray.getString(n);
-                logger.info("rfid Json content: " + rfid);
-            }*/
-            skuExtend.setReceivedCount(receivedArray.size());
+            List<String> list = JSONArray.parseArray(jsonObj.getString("data"), String.class);
+            if (list == null) return Result.objNull();
+            skuExtend.setRecevicedList(list);
+            skuExtend.setReceivedCount(list.size());
             result.setData(skuExtend);
             return result;
         } catch (Exception e) {
@@ -272,9 +270,9 @@ public class SkuServiceImpl implements SkuService {
     public Map<String, Object> stringToBean(JSONArray skuListJson, String accessToken) throws BusinessException {
         Map<String, Object> map = new HashMap<>();
         List<SkuStatistics> skuStatisticsList = new ArrayList<>();
+        Integer total = 0;
         if (skuListJson instanceof JSONArray) {
             if (skuListJson != null && skuListJson.size() > 0) {
-                Integer total = 0;
                 for (int n = 0, m = skuListJson.size(); n < m; n++) {
                     JSONObject skuJson = skuListJson.getJSONObject(n);
                     Sku sku = this.findSkuById(accessToken, new IdVO(skuJson.getString("skuId")));
@@ -319,10 +317,11 @@ public class SkuServiceImpl implements SkuService {
                     }
                     skuStatisticsList.add(statistics);
                 }
-                map.put("skuStatisticsList", skuStatisticsList);
-                map.put("total", total);
+
             }
         }
+        map.put("skuStatisticsList", skuStatisticsList);
+        map.put("total", total);
         return map;
     }
 
@@ -345,7 +344,7 @@ public class SkuServiceImpl implements SkuService {
         logger.info("sku列表：respose:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<Sku> skuList = JSONObject.parseArray(jsonObject1.getString("data"), Sku.class);
@@ -355,5 +354,118 @@ public class SkuServiceImpl implements SkuService {
             map.put(sku.getId(), sku);
         }
         return map;
+    }
+
+
+    /**
+     *  布草收脏统计
+     * @param token
+     * @param rfids
+     * @return
+     */
+    @Override
+    public SkuReceived recvstatistics(String token, List<String> rfids) throws BusinessException {
+        SkuReceived received = new SkuReceived();
+        String url = cloudUrl + "/linen/api/linen/alreadyinsert";
+        JSONObject param = new JSONObject();
+        param.put("rfids", rfids);
+        //已登记数量
+        String datajson = InvokeUtil.invokeString(url, token, param);
+        List<String> list = JSONArray.parseArray(datajson, String.class);
+        if (list == null || list.size() == 0) {
+            logger.info("已登记数量：rfids:{}", list);
+            received.setUnregisteredList(rfids);
+            return received;
+        }
+        //未登记数量
+        rfids.removeAll(list);
+        received.setUnregisteredList(rfids);
+
+        //获取8个小时内已收脏数量
+        url = cloudUrl + "/linen/api/linen/transferstate";
+        param.put("transferState", 1);
+        param.put("timeNum", 8);
+        param.put("rfids", list);
+        String rfidate = InvokeUtil.invokeString(url, token, param);
+        List<String> recerfids = JSONArray.parseArray(rfidate, String.class);
+        if (recerfids != null && recerfids.size() >= 0) {
+            logger.info("已收脏的rfids:{}", recerfids);
+        }
+        //已收脏
+        received.setReceivedList(recerfids);
+        list.removeAll(recerfids);
+        //未收脏
+        received.setUnReceivedList(list);
+        //收集所有SKUID
+        Set<String> set = new HashSet<>();
+        //收集未收脏sku的数量
+        Map<String, Integer> unrecemap = new HashMap<>();
+        //收集收脏sku的数量
+        Map<String, Integer> recemap = new HashMap<>();
+
+        List<SkuStatistics> unrecestatis = new ArrayList<>();
+        //查询未收脏rfid的sku信息
+        if (list.size() != 0) {
+            url = cloudUrl + "/linen/api/sku/statistic";
+            param.clear();
+            param.put("rfids", list);
+            String skudata = InvokeUtil.invokeString(url, token, param);
+            List<JSONObject> array = JSONArray.parseArray(skudata, JSONObject.class);
+            if (array == null || array.size() == 0) {
+                logger.error("已登记未收脏rfids未查询到sku信息：rfids:{}", list);
+            }
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject object = array.get(i);
+                String skuId = object.getString("skuId");
+                Integer count = object.getInteger("count");
+                unrecemap.put(skuId, count);
+                set.add(skuId);
+            }
+        } else {
+            received.setUnReceskuStatisticsList(unrecestatis);
+        }
+        List<SkuStatistics> recestatis = new ArrayList<>();
+        //查询已收脏的rfid的sku信息
+        if (recerfids.size() != 0) {
+            url = cloudUrl + "/linen/api/sku/statistic";
+            param.clear();
+            param.put("rfids", recerfids);
+            String skudata = InvokeUtil.invokeString(url, token, param);
+            List<JSONObject> array = JSONArray.parseArray(skudata, JSONObject.class);
+            if (array == null || array.size() == 0) {
+                logger.error("已登记已收脏的rfids未查询到sku信息：rfids:{}", list);
+            }
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject object = array.get(i);
+                String skuId = object.getString("skuId");
+                Integer count = object.getInteger("count");
+                recemap.put(skuId, count);
+                set.add(skuId);
+            }
+        } else {
+            received.setReceskuStatisticsList(recestatis);
+        }
+
+        Map<String, Sku> skus = this.findSkusByIds(set);
+        for (String skuId : set) {
+            Sku sku = skus.get(skuId);
+            if (unrecemap.containsKey(skuId)) {
+                SkuStatistics statis = new SkuStatistics();
+                statis.setSku(sku);
+                statis.setCount(unrecemap.get(skuId));
+                unrecestatis.add(statis);
+            }
+            if (recemap.containsKey(skuId)) {
+                SkuStatistics statis = new SkuStatistics();
+                statis.setSku(sku);
+                statis.setCount(recemap.get(skuId));
+                recestatis.add(statis);
+            }
+        }
+        Collections.sort(recestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
+        Collections.sort(unrecestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
+        received.setReceskuStatisticsList(recestatis);
+        received.setUnReceskuStatisticsList(unrecestatis);
+        return received;
     }
 }

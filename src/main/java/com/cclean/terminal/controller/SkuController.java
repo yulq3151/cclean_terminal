@@ -2,6 +2,7 @@ package com.cclean.terminal.controller;
 
 import com.cclean.terminal.config.Result;
 import com.cclean.terminal.exception.BusinessException;
+import com.cclean.terminal.model.SkuReceived;
 import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.vo.RfidsVO;
 import com.cclean.terminal.vo.SkuVO;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Sku相关接口
@@ -43,4 +45,21 @@ public class SkuController extends BaseController {
             return  skuService.page(getToken(request),skuVO);
     }
 
+    /**
+     * 布草收脏统计
+     * @param rfidsVO
+     * @param request
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/recvstatistics")
+    public Result recvstatistics(@RequestBody RfidsVO rfidsVO,HttpServletRequest request) throws BusinessException {
+        String token = getToken(request);
+        List<String> rfids = rfidsVO.getRfids();
+        if (rfids == null || rfids.size()==0){
+            return new Result("00001","请传入rfids");
+        }
+        SkuReceived received = this.skuService.recvstatistics(token, rfids);
+        return new Result(received);
+    }
 }

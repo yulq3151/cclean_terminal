@@ -72,7 +72,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         logger.info("生成任务单 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }
@@ -99,7 +99,9 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = data.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         workOrder.setSkuStatisticss(list);
         workOrder.setSkuStatisTotal((Integer) map.get("total"));
         return workOrder;
@@ -124,7 +126,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         logger.info("任务单详情 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }
@@ -151,7 +153,9 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         workOrder.setSkuStatisticss(list);
         workOrder.setSkuStatisTotal((Integer) map.get("total"));
         return workOrder;
