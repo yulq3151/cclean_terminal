@@ -110,7 +110,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         deliveryReceipt.setSkuStatisticss(list);
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
         return deliveryReceipt;
@@ -160,7 +162,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         deliveryReceipt.setSkuStatisticss(list);
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
         return deliveryReceipt;

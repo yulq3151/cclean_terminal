@@ -270,9 +270,9 @@ public class SkuServiceImpl implements SkuService {
     public Map<String, Object> stringToBean(JSONArray skuListJson, String accessToken) throws BusinessException {
         Map<String, Object> map = new HashMap<>();
         List<SkuStatistics> skuStatisticsList = new ArrayList<>();
+        Integer total = 0;
         if (skuListJson instanceof JSONArray) {
             if (skuListJson != null && skuListJson.size() > 0) {
-                Integer total = 0;
                 for (int n = 0, m = skuListJson.size(); n < m; n++) {
                     JSONObject skuJson = skuListJson.getJSONObject(n);
                     Sku sku = this.findSkuById(accessToken, new IdVO(skuJson.getString("skuId")));
@@ -317,10 +317,11 @@ public class SkuServiceImpl implements SkuService {
                     }
                     skuStatisticsList.add(statistics);
                 }
-                map.put("skuStatisticsList", skuStatisticsList);
-                map.put("total", total);
+
             }
         }
+        map.put("skuStatisticsList", skuStatisticsList);
+        map.put("total", total);
         return map;
     }
 
