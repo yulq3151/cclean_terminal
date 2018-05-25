@@ -50,7 +50,7 @@ public class BodyFilter implements Filter {
         } else {
             boolean flag = false;
             String token = requestWrapper.getHeader("token");
-            if (StringUtils.isNotEmpty(token)) {
+            if (!StringUtils.isBlank(token)) {
                 flag = true;
             }
             if (flag) {

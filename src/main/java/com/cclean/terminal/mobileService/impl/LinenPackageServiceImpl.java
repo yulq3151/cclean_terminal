@@ -9,6 +9,7 @@ import com.cclean.terminal.mobileService.HotelMService;
 import com.cclean.terminal.mobileService.LinenPackageService;
 import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.InvokeUtil;
+import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.LinenPackageVO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -294,5 +295,70 @@ public class LinenPackageServiceImpl implements LinenPackageService {
 
     }
 
+    /**
+     * 脏布草袋打扎
+     *
+     * @param token
+     * @param codes
+     * @return
+     */
+    @Override
+    public LinenPackageKZ packageKZ(String token, List<String> codes) throws BusinessException {
+        if (codes == null || codes.isEmpty()) {
+            return null;
+        }
+        String url = cloudUrl + "/cagecar/api/package/pack";
+        JSONObject param = new JSONObject();
+        param.put("codes", new HashSet<>(codes));
+        String data = InvokeUtil.invokeString(url, token, param);
+        LinenPackageKZ packageKZ = JSONObject.parseObject(data, LinenPackageKZ.class);
+        return packageKZ;
+    }
+
+    /**
+     * 查询打扎里的脏布草袋
+     *
+     * @param token
+     * @param
+     * @return
+     */
+    @Override
+    public List<String> findPackageKZ(String token, String packageKZ) throws BusinessException {
+        List<String> list = new ArrayList<>();
+        if (StringUtils.isBlank(packageKZ)) {
+            return list;
+        }
+        String url = cloudUrl + "/cagecar/api/package/itemList";
+        JSONObject param = new JSONObject();
+        param.put("linenPackagePackId", packageKZ);
+        String data = InvokeUtil.invokeString(url, token, param);
+        List<JSONObject> array = JSONArray.parseArray(data, JSONObject.class);
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject object = array.get(i);
+            String code = object.getString("packageCode");
+            list.add(code);
+        }
+        return list;
+    }
+
+    /**
+     *  打扎袋子领用
+     * @param token  操作人
+     * @param userId 使用人
+     * @param packageKZS
+     * @return
+     */
+    @Override
+    public boolean borrow(String token, String userId, List<String> packageKZS) throws BusinessException {
+        if (StringUtils.isBlank(userId)) {
+            throw new BusinessException("00001","请指明使用人");
+        }
+        String url = cloudUrl+"/cagecar/api/package/batchUpdate";
+        JSONObject param = new JSONObject();
+        param.put("userId",userId);
+        param.put("ids",packageKZS);
+        InvokeUtil.invokeString(url, token, param);
+        return true;
+    }
 
 }

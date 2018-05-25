@@ -36,5 +36,5 @@ public interface OrderMService {
 
     DeliveryOrder deliveryOrderinfo(String token, String id) throws BusinessException;
 
-    boolean updateDeliveryOrder(String token, String deliveryId, List<String> codes);
+    boolean updateDeliveryOrderBag(String token, String deliveryId, List<String> codes) throws BusinessException;
 }
