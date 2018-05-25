@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by hubin on 2018/3/23.
@@ -41,8 +39,6 @@ public class LinenController extends BaseController {
     @ResponseBody
     public Result update(@RequestBody(required = false) LinenUpdateVO linenUpdateVO, HttpServletRequest request) {
         if (linenUpdateVO == null) return Result.paramNull();
-        logger.info(" dirt linenDirtVO value is:" + linenUpdateVO);
-
         return linenService.update(getToken(request), linenUpdateVO);
     }
 
@@ -66,7 +62,6 @@ public class LinenController extends BaseController {
             map.put("linen", null);
             return map;
         }
-        logger.info(" dirt linenDirtVO value is:" + linenScrapVO);
         result = linenService.scrap(getToken(request), linenScrapVO);
         map.put("retInfo", result.getRetInfo());
         map.put("retCode", result.getRetCode());
@@ -86,8 +81,6 @@ public class LinenController extends BaseController {
     @ResponseBody
     public Result dirt(@RequestBody(required = false) LinenDirtVO linenDirtVO, HttpServletRequest request) throws BusinessException {
         if (linenDirtVO == null) return Result.paramNull();
-        logger.info(" dirt linenDirtVO value is:" + linenDirtVO);
-
         return linenService.dirt(getToken(request), linenDirtVO);
     }
 
@@ -101,11 +94,17 @@ public class LinenController extends BaseController {
     // RequestBody的属性required，为true代表所有参数必填，为false非必填，参数由自己判断
     @RequestMapping(value = "/recheck", method = RequestMethod.POST)
     @ResponseBody
-    public Result recheck(@RequestBody(required = false) LinenRecheckVO linenRecheckVO, HttpServletRequest request) {
-        if (linenRecheckVO == null) return Result.paramNull();
-        logger.info(" recheck linenRecheckVO value is:" + linenRecheckVO);
-
-        return linenService.recheck(getToken(request), linenRecheckVO);
+    public Result recheck(@RequestBody LinenRecheckVO linenRecheckVO, HttpServletRequest request) throws BusinessException {
+        String token = getToken(request);
+        List<String> ids = linenRecheckVO.getBasiss();
+        if (ids == null || ids.size() == 0) {
+            throw new BusinessException("00001", "请传入订单ID");
+        }
+        List<String> rfids = linenRecheckVO.getRfids();
+        if (rfids == null || rfids.size() == 0) {
+            throw new BusinessException("00001", "请传入rfids");
+        }
+        return this.linenService.recheck(token, ids, rfids);
     }
 
     /**
@@ -120,8 +119,6 @@ public class LinenController extends BaseController {
     @ResponseBody
     public Result pack(@RequestBody(required = false) RfidsVO rfidsVO, HttpServletRequest request) {
         if (rfidsVO == null) return Result.paramNull();
-        logger.info(" pack rfidsVO value is:" + rfidsVO);
-
         return linenService.pack(getToken(request), rfidsVO);
 
     }
@@ -142,6 +139,7 @@ public class LinenController extends BaseController {
 
     /**
      * 根据rfid查询未处理的打扎单
+     *
      * @param rfidsVO
      * @param request
      * @return
@@ -149,11 +147,11 @@ public class LinenController extends BaseController {
     @RequestMapping(value = "/packbyrfids", method = RequestMethod.POST)
     @ResponseBody
     public Result types(@RequestBody(required = false) RfidsVO rfidsVO, HttpServletRequest request) throws BusinessException {
-        String token =getToken(request);
-        if (rfidsVO.getRfids() == null || rfidsVO.getRfids().size()==0) {
+        String token = getToken(request);
+        if (rfidsVO.getRfids() == null || rfidsVO.getRfids().size() == 0) {
             throw new BusinessException("00001", "请传入rfid");
         }
-        LinenPack pack = this.linenService.findPacksByRfids(token,rfidsVO.getRfids());
+        LinenPack pack = this.linenService.findPacksByRfids(token, rfidsVO.getRfids());
         return new Result(pack);
 
     }

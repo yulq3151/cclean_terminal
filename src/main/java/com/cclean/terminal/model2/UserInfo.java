@@ -16,16 +16,16 @@ public class UserInfo implements Serializable {
     private String realName;
     private String status;
     private List<String> factoryid;
-//    private List<String> menus;
+    private List<String> menus;
     private List<AuthorityDetailList> auths;
 
-//    public List<String> getMenus() {
-//        return menus;
-//    }
-//
-//    public void setMenus(List<String> menus) {
-//        this.menus = menus;
-//    }
+    public List<String> getMenus() {
+        return menus;
+    }
+
+    public void setMenus(List<String> menus) {
+        this.menus = menus;
+    }
 
     public List<String> getFactoryid() {
         return factoryid;

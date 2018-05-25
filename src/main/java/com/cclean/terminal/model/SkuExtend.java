@@ -23,6 +23,15 @@ public class SkuExtend {
 
     //已收货数量
     private Integer receivedCount;
+    private List<String> recevicedList;
+
+    public List<String> getRecevicedList() {
+        return recevicedList;
+    }
+
+    public void setRecevicedList(List<String> recevicedList) {
+        this.recevicedList = recevicedList;
+    }
 
     public Integer getReceivedCount() {
         return receivedCount;

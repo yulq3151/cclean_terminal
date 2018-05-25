@@ -84,7 +84,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         logger.info("生成配送单信息：{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObj.getString("retInfo"));
         }
         JSONObject dataJson = jsonObj.getJSONObject("data");
@@ -110,7 +110,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         deliveryReceipt.setSkuStatisticss(list);
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
         return deliveryReceipt;
@@ -134,7 +136,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         logger.info("配送单详情：{}" + httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retCode, retInfo);
         }
@@ -160,7 +162,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         deliveryReceipt.setSkuStatisticss(list);
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
         return deliveryReceipt;

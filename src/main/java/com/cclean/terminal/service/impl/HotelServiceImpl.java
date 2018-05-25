@@ -76,13 +76,13 @@ public class HotelServiceImpl implements HotelService {
         Result result = Result.success();
         try {
             if (hotelVO.getPageNum() == null && hotelVO.getPageSize() == null) {
-                result.setCodeInfo("00100", "分页参数必填");
+                result.setCodeInfo("00001", "分页参数必填");
             }
             if (accessToken == null) return Result.paramNull();
             logger.info("accessToken value is:{}", accessToken);
             List<String> factoryIds = powerUtils.getFactoryIds(accessToken);
             if (factoryIds == null || factoryIds.size() <= 0) {
-                result.setCodeInfo(Constant.RET_CODE_ERROR, "权限不足");
+                result.setCodeInfo(Constant.RET_CODE_DEBUG, "权限不足");
                 return result;
             }
             List<Hotel> hotelList = new ArrayList<>();
@@ -103,11 +103,10 @@ public class HotelServiceImpl implements HotelService {
             JSONObject dataJson = jsonObj.getJSONObject("page");
             if (dataJson == null) return Result.objNull();
             JSONArray jsonArray = dataJson.getJSONArray("list");
-            if (jsonArray == null) return Result.objNull();
+            if (jsonArray == null) return new Result(new PageMo<>());
 
             for (int i = 0, j = jsonArray.size(); i < j; i++) {
                 JSONObject json = jsonArray.getJSONObject(i);
-                if (json == null) return Result.objNull();
                 Hotel hotel = new Hotel();
                 hotel.setId(json.getString("id"));
                 hotel.setName(json.getString("name"));
@@ -166,8 +165,8 @@ public class HotelServiceImpl implements HotelService {
             }
             JSONObject dataJson = jsonObj.getJSONObject("page");
             JSONArray jsonArray = dataJson.getJSONArray("list");
-            if (jsonArray == null || jsonArray.size() == 0) return Result.objNull();
             List<String> pointIds = new ArrayList<>();
+            if (jsonArray == null || jsonArray.size() == 0) return new Result(new PageMo<>());
             for (int i = 0, j = jsonArray.size(); i < j; i++) {
                 JSONObject json = jsonArray.getJSONObject(i);
                 DeliveryPoint deliveryPoint = new DeliveryPoint();
@@ -216,8 +215,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public Hotel findHotelById(String accessToken, IdVO idVO) throws BusinessException {
         Hotel hotel = new Hotel();
-        if (StringUtils.isHasEmpty(accessToken, idVO.getId())) {
-            throw new BusinessException("00002", "参数错误");
+        if (StringUtils.isHasEmpty(idVO.getId())) {
+            return null;
         }
         String url = linenUrl + hotelInfoUrl;
         JSONObject jsonParam = new JSONObject();
@@ -251,8 +250,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public DeliveryPoint findPointById(String accessToken, IdVO idVO) throws BusinessException {
         DeliveryPoint deliveryPoint = new DeliveryPoint();
-        if (StringUtils.isHasEmpty(accessToken, idVO.getId())) {
-            throw new BusinessException("00002", "参数错误");
+        if (StringUtils.isHasEmpty(idVO.getId())) {
+            return null;
         }
         String url = linenUrl + deliveryPointInfoUrl;
         JSONObject jsonParam = new JSONObject();
@@ -289,7 +288,7 @@ public class HotelServiceImpl implements HotelService {
         logger.info("配送点列表:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         JSONArray array = jsonObject1.getJSONArray("data");
@@ -323,7 +322,7 @@ public class HotelServiceImpl implements HotelService {
         logger.info("酒店列表:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
         List<Hotel> hotelBos = JSONObject.parseArray(jsonObject1.getString("data"), Hotel.class);

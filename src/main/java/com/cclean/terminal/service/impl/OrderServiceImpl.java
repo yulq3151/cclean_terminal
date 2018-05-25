@@ -72,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
         logger.info("订单详情：respose:{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
-        if (!retCode.equals("00000")) {
+        if (!"00000".equals(retCode)) {
             String retInfo = jsonObj.getString("retInfo");
             throw new BusinessException(retInfo, retCode);
         }
@@ -99,7 +99,9 @@ public class OrderServiceImpl implements OrderService {
         JSONArray skuListJson = orderJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         order.setSkuStatisticss(list);
         order.setSkuStatisTotal((Integer) map.get("total"));
         return order;

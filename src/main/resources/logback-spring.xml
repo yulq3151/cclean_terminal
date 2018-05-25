@@ -11,20 +11,22 @@
     </appender>
 
     <property name="LOG_PATH" value="/var/log/terminal" />
+    <springProperty scope="context" name="port" source="server.port"/>
+
 
     <!-- 时间滚动输出 level为 INFO 日志 -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${LOG_PATH}/terminal_info.log</File>
+        <File>${LOG_PATH}/terminal_info_${port}.log</File>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</pattern>
             <charset>UTF-8</charset> <!-- 此处设置字符集 -->
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/terminal_info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/terminal_info_${port}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>500MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>2</maxHistory>
+            <maxHistory>60</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -34,13 +36,13 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</pattern>
             <charset>UTF-8</charset> <!-- 此处设置字符集 -->
         </encoder>
-        <File>${LOG_PATH}/terminal_error.log</File>
+        <File>${LOG_PATH}/terminal_error_${port}.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/terminal_error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/terminal_error_${port}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>500MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>2</maxHistory>
+            <maxHistory>60</maxHistory>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
@@ -48,21 +50,20 @@
     </appender>
 
     <springProfile name="dev">
-        <logger name="org.springframework.web" level="INFO" />
-        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="INFO"/>
-        <root level="DEBUG">
-            <appender-ref ref="INFO_FILE" />
-            <appender-ref ref="ERROR_FILE" />
+        <logger name="org.springframework.web" level="ERROR" />
+        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="ERROR"/>
+        <root level="INFO">
+            <!--<appender-ref ref="INFO_FILE" />-->
+            <!--<appender-ref ref="ERROR_FILE" />-->
             <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>
     <springProfile name="qa">
-        <logger name="org.springframework.web" level="INFO" />
-        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="INFO"/>
-        <root level="DEBUG">
+        <logger name="org.springframework.web" level="ERROR" />
+        <logger name="org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor" level="ERROR"/>
+        <root level="INFO">
             <appender-ref ref="INFO_FILE" />
             <appender-ref ref="ERROR_FILE" />
-            <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>
     <springProfile name="pro">
@@ -71,7 +72,6 @@
         <root level="INFO">
             <appender-ref ref="INFO_FILE" />
             <appender-ref ref="ERROR_FILE" />
-            <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>
 </configuration>
