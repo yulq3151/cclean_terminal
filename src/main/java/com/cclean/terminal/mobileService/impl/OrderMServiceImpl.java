@@ -368,6 +368,7 @@ public class OrderMServiceImpl implements OrderMService {
         param.put("pickOrderId", zPickVo.getWorkOrderId());
         param.put("skus", list);
         param.put("rfids", rfids);
+        param.put("packages",zPickVo.getPackages());
 
         //请求生成配送单接口
         String post = HttpUtil.doPost(url, token, param);

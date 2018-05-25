@@ -1,6 +1,7 @@
 package com.cclean.terminal.model2;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *  配送单
@@ -32,6 +33,16 @@ public class DeliveryOrder extends BaseOrder {
     private DeliveryPointM drypoint;
     //配送单sku总数 实配数之和
     private Integer totalCnt;
+
+    private List<DeliveryOrderPackage> packages;
+
+    public List<DeliveryOrderPackage> getPackages() {
+        return packages;
+    }
+
+    public void setPackages(List<DeliveryOrderPackage> packages) {
+        this.packages = packages;
+    }
 
     public Integer getTotalCnt() {
         return totalCnt;

@@ -1,6 +1,7 @@
 package com.cclean.terminal.vo;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author yulq
@@ -16,6 +17,16 @@ public class ZPickVo {
     private String[] rfids;
     //打扎ID
     private String[] packids;
+    //布草袋
+    private List<String> packages;
+
+    public List<String> getPackages() {
+        return packages;
+    }
+
+    public void setPackages(List<String> packages) {
+        this.packages = packages;
+    }
 
     public String[] getPackids() {
         return packids;
