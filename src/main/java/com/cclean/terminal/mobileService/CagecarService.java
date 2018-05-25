@@ -1,5 +1,6 @@
 package com.cclean.terminal.mobileService;
 
+import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model2.Cagecar;
 import com.cclean.terminal.model2.CagecarUseLog;
@@ -22,4 +23,6 @@ public interface CagecarService {
     CagecarUseLog recored(String token, String code) throws BusinessException;
 
     List<LinenPackM> findPacks(String token, String code) throws BusinessException;
+
+    PageMo<CagecarUseLog> query(String token, int pageNum, int pageSize, List<Integer> statusArr, String cagecarCode, String userTimeStart, String useTimeEnd, String type) throws BusinessException;
 }

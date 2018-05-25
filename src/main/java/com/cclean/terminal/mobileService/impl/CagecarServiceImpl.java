@@ -2,6 +2,7 @@ package com.cclean.terminal.mobileService.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.CagecarService;
 import com.cclean.terminal.model.Sku;
@@ -293,18 +294,41 @@ public class CagecarServiceImpl implements CagecarService {
      * @param token
      * @param pageNum
      * @param pageSize
-     * @param status
-     * @param code
-     * @param borrowDriverId
-     * @param borrowTimeStart
-     * @param borrowTimeEnd
-     * @param deliveryDriverId
-     * @param deliveryTimeStart
-     * @param deliveryTimeEnd
+     * @param statusArr    状态可多选择
+     * @param cagecarCode  笼车code
+     * @param useTimeStart 借用时间  开始
+     * @param useTimeEnd   借用时间  结尾
+     * @param type
      * @return
      */
-    public List<CagecarUseLog> query(String token, int pageNum, int pageSize, int status, String code, String borrowDriverId,
-                                     String borrowTimeStart, String borrowTimeEnd, String deliveryDriverId, String deliveryTimeStart, String deliveryTimeEnd) {
-        return null;
+    @Override
+    public PageMo<CagecarUseLog> query(String token, int pageNum, int pageSize, List<Integer> statusArr, String cagecarCode, String useTimeStart, String useTimeEnd, String type) throws BusinessException {
+        String url = cloudUrl + "/cagecar/api/cagecar/uselog/page";
+        JSONObject param = new JSONObject();
+        if (pageNum <= 0 || pageSize < 0) {
+            throw new BusinessException("00001", "分页参数有误");
+        }
+        if (statusArr != null && statusArr.size() > 0) {
+            param.put("statusArr", statusArr);
+        }
+        if (!StringUtils.isBlank(cagecarCode)) {
+            param.put("cagecarCode", cagecarCode);
+        }
+        if (!StringUtils.isBlank(useTimeStart)) {
+            param.put("useTimeStart", useTimeStart);
+        }
+        if (!StringUtils.isBlank(useTimeEnd)) {
+            param.put("useTimeEnd", useTimeEnd);
+        }
+        if (!StringUtils.isBlank(type)) {
+            param.put("type", type);
+        }
+        JSONObject data = InvokeUtil.invokeResult(url, token, param);
+        int total = data.getIntValue("total");
+        String list = data.getString("list");
+        List<CagecarUseLog> logList = JSONArray.parseArray(list, CagecarUseLog.class);
+        return new PageMo<>(logList, pageNum, pageSize, total);
     }
+
+
 }

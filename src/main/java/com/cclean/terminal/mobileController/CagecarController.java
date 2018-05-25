@@ -3,9 +3,11 @@ package com.cclean.terminal.mobileController;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.config.Result;
+import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.CagecarService;
 import com.cclean.terminal.model2.Cagecar;
+import com.cclean.terminal.model2.CagecarUseLog;
 import com.cclean.terminal.model2.LinenPackM;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,4 +104,27 @@ public class CagecarController extends BaseMController {
         return new Result(packs);
     }
 
+
+    /**
+     * 笼车状态查询
+     *
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    @RequestMapping("/query")
+    public Result queryUseLog(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject obj = JSONArray.parseObject(param);
+        int pageNum = obj.getIntValue("pageNum");
+        int pageSize = obj.getIntValue("pageSize");
+        List<Integer> statusArr = JSONArray.parseArray(obj.getString("statusArr"), Integer.class);
+        String cagecarCode = obj.getString("cagecarCode");
+        String useTimeStart = obj.getString("startTime");
+        String useTimeEnd = obj.getString("endTime");
+        String type = obj.getString("type");
+        PageMo<CagecarUseLog> query = this.cagecarService.query(token, pageNum, pageSize, statusArr, cagecarCode, useTimeStart, useTimeEnd, type);
+        return new Result(query);
+    }
 }
