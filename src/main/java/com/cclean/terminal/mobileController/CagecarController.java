@@ -78,27 +78,11 @@ public class CagecarController extends BaseMController {
         String userId = obj.getString("userId");
         String factoryId = obj.getString("factoryId");
         int status = obj.getIntValue("status");
+        List<String> packCodes = JSONArray.parseArray(obj.getString("packCodes"), String.class);
         if (codes == null || codes.isEmpty()) {
             throw new BusinessException("00001", "请传入笼车code");
         }
-        boolean bl = this.cagecarService.cagecarUse(token, status, userId, factoryId, codes);
-        return new Result(bl);
-    }
-
-    /**
-     * 笼车装货
-     *
-     * @param request
-     * @param param
-     * @return
-     */
-    @RequestMapping("/load")
-    public Result load(HttpServletRequest request, @RequestBody String param) throws BusinessException {
-        String token = getToken(request);
-        JSONObject obj = JSONArray.parseObject(param);
-        String code = obj.getString("code");
-        List<String> kzcodes = JSONArray.parseArray(obj.getString("kzcodes"), String.class);
-        boolean bl = this.cagecarService.load(token, code, kzcodes);
+        boolean bl = this.cagecarService.cagecarUse(token, status, userId, factoryId, codes, packCodes);
         return new Result(bl);
     }
 

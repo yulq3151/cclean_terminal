@@ -25,6 +25,8 @@ public class DeliveryPointM implements Serializable {
     private String position;
     //房间数量
     private Integer roomCount;
+    //有无未处理的订单和任务单 0无1有
+    private Integer status;
 //    //负责人
 //    private String managerName;
 //    //负责人电话
@@ -101,7 +103,15 @@ public class DeliveryPointM implements Serializable {
     public void setRoomCount(Integer roomCount) {
         this.roomCount = roomCount;
     }
-//
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+    //
 //    public String getManagerName() {
 //        return managerName;
 //    }

@@ -17,11 +17,9 @@ public interface CagecarService {
 
     List<Cagecar> list(String token, List<String> codes) throws BusinessException;
 
-    boolean cagecarUse(String token, int status, String userId, String factoryId, List<String> codes) throws BusinessException;
+    boolean cagecarUse(String token, int status, String userId, String factoryId, List<String> codes, List<String> packCodes) throws BusinessException;
 
     CagecarUseLog recored(String token, String code) throws BusinessException;
-
-    boolean load(String token, String code, List<String> kzcodes) throws BusinessException;
 
     List<LinenPackM> findPacks(String token, String code) throws BusinessException;
 }

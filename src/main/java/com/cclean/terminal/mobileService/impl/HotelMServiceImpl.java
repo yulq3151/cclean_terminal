@@ -5,11 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.HotelMService;
+import com.cclean.terminal.model.DeliveryPoint;
 import com.cclean.terminal.model.Hotel;
 import com.cclean.terminal.model2.DeliveryPointM;
 import com.cclean.terminal.model2.HotelBo;
 import com.cclean.terminal.model2.HotelM;
 import com.cclean.terminal.util.HttpUtil;
+import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.HotelVO;
 import com.cclean.terminal.vo.PageVO;
@@ -150,6 +152,19 @@ public class HotelMServiceImpl implements HotelMService {
             return new ArrayList<>();
         }
         List<DeliveryPointM> mList = JSONArray.parseArray(list, DeliveryPointM.class);
+        if (mList != null && mList.size() > 0) {
+            String orurl = cloudUrl + "/cloud/order/order/orderpoint";
+            String data = InvokeUtil.invokeString(orurl, token, param);
+            List<String> points = JSONObject.parseArray(data, String.class);
+            for (int i = 0; i < mList.size(); i++) {
+                DeliveryPointM point = mList.get(i);
+                if (points.contains(point.getId())) {
+                    point.setStatus(1);
+                } else {
+                    point.setStatus(0);
+                }
+            }
+        }
         return mList;
     }
 

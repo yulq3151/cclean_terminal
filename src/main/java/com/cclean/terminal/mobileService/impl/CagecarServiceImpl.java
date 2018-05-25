@@ -84,16 +84,20 @@ public class CagecarServiceImpl implements CagecarService {
      * @param userId    使用人
      * @param factoryId 使用工厂
      * @param codes     笼车code
+     * @param packCodes
      * @return 使用记录的ids
      */
     @Override
-    public boolean cagecarUse(String token, int status, String userId, String factoryId, List<String> codes) throws BusinessException {
+    public boolean cagecarUse(String token, int status, String userId, String factoryId, List<String> codes, List<String> packCodes) throws BusinessException {
         switch (status) {
             case 10:
                 this.borrow(token, userId, factoryId, status, codes);
                 return true;
             case 20:
                 this.signEmpty(token, status, codes);
+                return true;
+            case 30:
+                this.load(token, codes, packCodes);
                 return true;
             case 40:
                 this.back(token, userId, status, codes);
@@ -128,27 +132,6 @@ public class CagecarServiceImpl implements CagecarService {
 
 
     /**
-     * 笼车配货
-     *
-     * @param token
-     * @param code    使用记录的id
-     * @param kzcodes 打扎单号
-     * @return 使用记录ID
-     */
-    @Override
-    public boolean load(String token, String code, List<String> kzcodes) throws BusinessException {
-        if (StringUtils.isBlank(code)) {
-            throw new BusinessException("00001", "笼车code有误");
-        }
-        String url = cloudUrl + "/cagecar/api/delivery/item/insert";
-        JSONObject param = new JSONObject();
-        param.put("cagecarCode", code);
-        param.put("packCodes", new HashSet<>(kzcodes));
-        InvokeUtil.invokeString(url, token, param);
-        return true;
-    }
-
-    /**
      * 查询笼车+货
      *
      * @param token
@@ -179,9 +162,9 @@ public class CagecarServiceImpl implements CagecarService {
             list.add(packM);
         }
         //查询打扎单详情
-        url = cloudUrl + "";
+        url = cloudUrl + "/linen/api/linen/pack/list";
         param.clear();
-        param.put("", kzids);
+        param.put("ids", kzids);
         String datakz = InvokeUtil.invokeString(url, token, param);
         List<JSONObject> kzdata = JSONArray.parseArray(datakz, JSONObject.class);
         if (kzdata != null && kzdata.size() > 0) {
@@ -227,7 +210,7 @@ public class CagecarServiceImpl implements CagecarService {
         String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("status", status);
-        param.put("cagecarCode", codes);
+        param.put("cagecarCodes", codes);
         param.put("borrowDriverId", userId);
         param.put("factoryId", factoryId);
         InvokeUtil.invokeString(url, token, param);
@@ -244,7 +227,27 @@ public class CagecarServiceImpl implements CagecarService {
         String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("status", status);
-        param.put("cagecarCode", codes);
+        param.put("cagecarCodes", codes);
+        InvokeUtil.invokeString(url, token, param);
+        return true;
+    }
+
+    /**
+     * 笼车配货
+     *
+     * @param token
+     * @param codes   使用记录的id
+     * @param kzcodes 打扎单号
+     * @return 使用记录ID
+     */
+    private boolean load(String token, List<String> codes, List<String> kzcodes) throws BusinessException {
+        if (codes == null || codes.isEmpty() || codes.size() > 1) {
+            throw new BusinessException("00001", "笼车code有误");
+        }
+        String url = cloudUrl + "/cagecar/api/delivery/item/insert";
+        JSONObject param = new JSONObject();
+        param.put("cagecarCodes", codes);
+        param.put("packCodes", new HashSet<>(kzcodes));
         InvokeUtil.invokeString(url, token, param);
         return true;
     }
@@ -262,7 +265,7 @@ public class CagecarServiceImpl implements CagecarService {
         String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("status", status);
-        param.put("cagecarCode", codes);
+        param.put("cagecarCodes", codes);
         param.put("deliveryDriverId", userId);
         InvokeUtil.invokeString(url, token, param);
         return true;
@@ -278,7 +281,7 @@ public class CagecarServiceImpl implements CagecarService {
         String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("status", status);
-        param.put("cagecarCode", codes);
+        param.put("cagecarCodes", codes);
         InvokeUtil.invokeString(url, token, param);
         return true;
     }

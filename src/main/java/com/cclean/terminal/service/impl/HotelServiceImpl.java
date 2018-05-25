@@ -176,7 +176,7 @@ public class HotelServiceImpl implements HotelService {
                 deliveryPoint.setFloor(json.getString("name"));
                 deliveryPointList.add(deliveryPoint);
             }
-            //查询配送点有无订单
+            //查询配送点有无订单//配送点有无单据的状态：查询的是配送点下的订单和任务单，如果有未处理，标示状态
             if (pointIds.size()>0) {
                 String orurl= cloudUrl+"/cloud/order/order/orderpoint";
                 String data = InvokeUtil.invokeString(orurl, accessToken, jsonParam);
