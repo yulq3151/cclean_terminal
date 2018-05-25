@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Sku相关接口
@@ -61,5 +62,23 @@ public class SkuController extends BaseController {
         }
         SkuReceived received = this.skuService.recvstatistics(token, rfids);
         return new Result(received);
+    }
+
+    /**
+     * 布草sku信息查询
+     * @param rfidsVO
+     * @param request
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/review")
+    public Result findSkuByrfid(@RequestBody RfidsVO rfidsVO,HttpServletRequest request) throws BusinessException {
+        String token = getToken(request);
+        List<String> rfids = rfidsVO.getRfids();
+        if (rfids == null || rfids.size()==0){
+            return new Result("00001","请传入rfids");
+        }
+        List<Map<String, String>> rfides = this.skuService.findSkuByRfid(token, rfids);
+        return new Result(rfides);
     }
 }
