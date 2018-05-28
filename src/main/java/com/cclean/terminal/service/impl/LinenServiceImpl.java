@@ -370,7 +370,7 @@ public class LinenServiceImpl implements LinenService {
         //变更rfids的状态
         String stateUrl= cloudUrl+"/linen/api/linen/update";
         param.clear();
-        param.put("transferState",1);
+        param.put("transferState",4);
         param.put("rfids",list);
         HttpUtil.doPost(stateUrl,token,param);
         return new Result("00000","操作成功");
