@@ -99,7 +99,9 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = data.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         workOrder.setSkuStatisticss(list);
         workOrder.setSkuStatisTotal((Integer) map.get("total"));
         return workOrder;
@@ -151,7 +153,9 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        if (list!=null) {
+            Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
+        }
         workOrder.setSkuStatisticss(list);
         workOrder.setSkuStatisTotal((Integer) map.get("total"));
         return workOrder;

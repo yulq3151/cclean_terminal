@@ -53,21 +53,21 @@ public class SkuServiceImpl implements SkuService {
         Result result = Result.success();
         try {
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}" , accessToken);
+            logger.info("accessToken value is:{}", accessToken);
 
             SkuExtend skuExtend = new SkuExtend();
             List<String> rfids = rfidsVO.getRfids();
             String url = cloudUrl + "/linen/api/linen/statistic";
-            logger.info("linens cloudUrl is:{}" , url);
+            logger.info("linens cloudUrl is:{}", url);
             String js = JSONArray.toJSONString(rfidsVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("已登记的的sku：respose:{}",httpEntitys);
+            logger.info("已登记的的sku：respose:{}", httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("url:{},retCode:{},retInfo:{}",url,retCode,retInfo);
+                logger.error("url:{},retCode:{},retInfo:{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -78,7 +78,7 @@ public class SkuServiceImpl implements SkuService {
             List<String> unregisteredList = new ArrayList<>();
             // 已登记rifd列表
             List<String> registeredList = new ArrayList<>();
-            ;
+
             JSONArray linenArray = jsonObj.getJSONArray("data");
             if (linenArray == null) return Result.objNull();
 
@@ -103,12 +103,12 @@ public class SkuServiceImpl implements SkuService {
             js = JSONArray.toJSONString(rfidsVO);
             jsonParam = JSONArray.parseObject(js);
             httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("根据rfids查询sku：respose:{}",httpEntitys);
+            logger.info("根据rfids查询sku：respose:{}", httpEntitys);
             jsonObj = JSONObject.parseObject(httpEntitys);
             retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}",url,retCode,retInfo);
+                logger.error("{}{}{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -130,18 +130,18 @@ public class SkuServiceImpl implements SkuService {
 
             //获取8个小时内已收脏数量
             url = cloudUrl + "/linen/api/linen/transferstate";
-            logger.info("linens cloudUrl is:{}" , url);
+            logger.info("linens cloudUrl is:{}", url);
             js = JSONArray.toJSONString(rfidsVO);
             jsonParam = JSONArray.parseObject(js);
             jsonParam.put("transferState", "1");
             jsonParam.put("timeNum", "8");
             httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("查询布草状态：respose:{}",httpEntitys);
+            logger.info("查询布草状态：respose:{}", httpEntitys);
             jsonObj = JSONObject.parseObject(httpEntitys);
             retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}",url,retCode,retInfo);
+                logger.error("{}{}{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -186,7 +186,7 @@ public class SkuServiceImpl implements SkuService {
             jsonParam.remove("code");
             jsonParam.remove("codeType");
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("sku列表：respose:{}",httpEntitys);
+            logger.info("sku列表：respose:{}", httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -242,7 +242,7 @@ public class SkuServiceImpl implements SkuService {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", idVO.getId());
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("根据id查询sku：respose:{}",httpEntitys);
+        logger.info("根据id查询sku：respose:{}", httpEntitys);
         JSONObject jsonResult = JSONObject.parseObject(httpEntitys);
         String retCode = jsonResult.getString("retCode");
         if (StringUtils.isNotEquals("00000", retCode)) {
@@ -270,9 +270,9 @@ public class SkuServiceImpl implements SkuService {
     public Map<String, Object> stringToBean(JSONArray skuListJson, String accessToken) throws BusinessException {
         Map<String, Object> map = new HashMap<>();
         List<SkuStatistics> skuStatisticsList = new ArrayList<>();
+        Integer total = 0;
         if (skuListJson instanceof JSONArray) {
             if (skuListJson != null && skuListJson.size() > 0) {
-                Integer total = 0;
                 for (int n = 0, m = skuListJson.size(); n < m; n++) {
                     JSONObject skuJson = skuListJson.getJSONObject(n);
                     Sku sku = this.findSkuById(accessToken, new IdVO(skuJson.getString("skuId")));
@@ -317,10 +317,11 @@ public class SkuServiceImpl implements SkuService {
                     }
                     skuStatisticsList.add(statistics);
                 }
-                map.put("skuStatisticsList", skuStatisticsList);
-                map.put("total", total);
+
             }
         }
+        map.put("skuStatisticsList", skuStatisticsList);
+        map.put("total", total);
         return map;
     }
 
@@ -340,7 +341,7 @@ public class SkuServiceImpl implements SkuService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("sku列表：respose:{}",httpEntitys);
+        logger.info("sku列表：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -357,7 +358,8 @@ public class SkuServiceImpl implements SkuService {
 
 
     /**
-     *  布草收脏统计
+     * 布草收脏统计
+     *
      * @param token
      * @param rfids
      * @return
@@ -461,10 +463,72 @@ public class SkuServiceImpl implements SkuService {
                 recestatis.add(statis);
             }
         }
-        Collections.sort(recestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
-        Collections.sort(unrecestatis,Comparator.comparing(skutics->skutics.getSku().getName()));
+        Collections.sort(recestatis, Comparator.comparing(skutics -> skutics.getSku().getName()));
+        Collections.sort(unrecestatis, Comparator.comparing(skutics -> skutics.getSku().getName()));
         received.setReceskuStatisticsList(recestatis);
         received.setUnReceskuStatisticsList(unrecestatis);
         return received;
+    }
+
+
+    /**
+     * 根据rfids 查询每个布草的信息
+     *
+     * @param token
+     * @param rfids
+     * @return  rfid,skuid,skuname,skusize
+     */
+    @Override
+    public List<Map<String, String>> findSkuByRfid(String token, List<String> rfids) throws BusinessException {
+        List<Map<String, String>> list = new ArrayList<>();
+        if (rfids == null || rfids.size() == 0) {
+            return list;
+        }
+        Set<String> set = new HashSet<>(rfids);
+        String url = cloudUrl + "/linen/api/linen/statistic";
+        JSONObject param = new JSONObject();
+        param.put("rfids", set);
+        String data = InvokeUtil.invokeString(url, token, param);
+        List<JSONObject> array = JSONArray.parseArray(data, JSONObject.class);
+        if (array == null || array.size() == 0) {
+            return list;
+        }
+        Set<String> skuids = new HashSet<>();
+        Set<String> rfides = new HashSet<>();
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject object = array.get(i);
+            String skuId = object.getString("skuId");
+            String rfidId = object.getString("rfidId");
+            String transferState = object.getString("transferState");
+            skuids.add(skuId);
+            rfides.add(rfidId);
+            Map<String, String> map = new HashMap<>();
+            map.put("rfid", rfidId);
+            map.put("status",transferState);
+            map.put("skuId", skuId);
+            list.add(map);
+        }
+        if (skuids.size() > 0) {
+            Map<String, Sku> skus = this.findSkusByIds(skuids);
+            for (int i = 0; i < list.size(); i++) {
+                Map<String, String> map = list.get(i);
+                String skuId = map.get("skuId");
+                Sku sku = skus.get(skuId);
+                map.put("skuName", sku.getName());
+                map.put("size", sku.getSizeValue());
+            }
+        }
+        //去除已登记的
+        set.removeAll(rfids);
+        if (set.size() > 0) {
+            for (String rfid : set) {
+                Map<String,String> map = new HashMap<>();
+                map.put("rfid",rfid);
+                map.put("skuId","00000000000000000000000000000000");
+                map.put("skuName","未登记布草");
+                list.add(map);
+            }
+        }
+        return list;
     }
 }

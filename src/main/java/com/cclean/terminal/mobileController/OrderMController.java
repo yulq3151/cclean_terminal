@@ -229,7 +229,7 @@ public class OrderMController extends BaseController {
         if (codes == null || codes.size()==0) {
             throw  new BusinessException("00001", "布草袋不能为空");
         }
-        boolean bl = orderMService.updateDeliveryOrder(token, deliveryId, codes);
+        boolean bl = orderMService.updateDeliveryOrderBag(token, deliveryId, codes);
         return new Result(bl);
     }
 

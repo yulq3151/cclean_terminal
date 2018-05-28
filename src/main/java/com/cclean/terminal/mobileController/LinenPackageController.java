@@ -1,14 +1,12 @@
 package com.cclean.terminal.mobileController;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.LinenPackageService;
 import com.cclean.terminal.model.Result;
-import com.cclean.terminal.model2.LinenPackage;
-import com.cclean.terminal.model2.LinenPackageRecord;
-import com.cclean.terminal.model2.LinenPackageStacount;
-import com.cclean.terminal.model2.LinenPackageStatistics;
+import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.LinenPackageVO;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -209,7 +207,7 @@ public class LinenPackageController extends BaseMController {
     }
 
     /**
-     * 脏布草报表
+     * 脏布草袋报表
      *
      * @param request
      * @return
@@ -247,6 +245,53 @@ public class LinenPackageController extends BaseMController {
         }
         JSONObject object = JSONObject.parseObject(param);
         List<String> codes = JSONObject.parseArray(object.getString("codes"), String.class);
-        return null;
+        LinenPackageKZ packageKZ = this.packageService.packageKZ(token, codes);
+        return new Result(packageKZ);
     }
+
+    /**
+     * 查询打扎里的脏布草袋
+     *
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/kzbags")
+    public Result findPackageKZ(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        if (!param.contains("packageKZ")) {
+            throw new BusinessException("00001", "参数有误");
+        }
+        JSONObject object = JSONObject.parseObject(param);
+        String kz = object.getString("packageKZ");
+        LinenPackageKZ packKZ = this.packageService.findPackageKZ(token, kz);
+        return new Result(packKZ);
+    }
+
+    /**
+     * 领用打扎袋
+     *
+     * @param request
+     * @param param
+     * @return
+     * @throws BusinessException
+     */
+    @PostMapping("/borrow")
+    public Result borrow(HttpServletRequest request, @RequestBody String param) throws BusinessException {
+        String token = getToken(request);
+        JSONObject object = JSONObject.parseObject(param);
+        String userId = object.getString("userId");
+        List<String> list = JSONArray.parseArray(object.getString("packageKZS"), String.class);
+        if (StringUtils.isBlank(userId)) {
+            throw new BusinessException("00001","请选择使用者");
+        }
+        if (list == null || list.size()==0) {
+            throw new BusinessException("00001","请传入布草袋打扎号");
+        }
+        boolean bl = this.packageService.borrow(token, userId, list);
+        return new Result(bl);
+    }
+
+
 }

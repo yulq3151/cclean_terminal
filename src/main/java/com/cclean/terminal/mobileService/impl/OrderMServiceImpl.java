@@ -11,6 +11,7 @@ import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
+import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
 import com.cclean.terminal.vo.SkuSVo;
@@ -367,6 +368,7 @@ public class OrderMServiceImpl implements OrderMService {
         param.put("pickOrderId", zPickVo.getWorkOrderId());
         param.put("skus", list);
         param.put("rfids", rfids);
+        param.put("packages",zPickVo.getPackages());
 
         //请求生成配送单接口
         String post = HttpUtil.doPost(url, token, param);
@@ -548,14 +550,25 @@ public class OrderMServiceImpl implements OrderMService {
      * 修改配送单的袋子
      * @param token
      * @param deliveryId
-     * @param codes
+     * @param packageCodes
      * @return
      */
     @Override
-    public boolean updateDeliveryOrder(String token,String deliveryId,List<String> codes){
-        String url = cloudUrl+"";
-
+    public boolean updateDeliveryOrderBag(String token, String deliveryId, List<String> packageCodes) throws BusinessException {
+        if (StringUtils.isBlank(deliveryId)) {
+            throw new BusinessException("00001","缺少参数：配送单ID");
+        }
+        List<JSONObject> list = new ArrayList<>();
+        for (int i = 0; i < packageCodes.size(); i++) {
+            JSONObject obj = new JSONObject();
+            obj.put("packageCode",packageCodes.get(i));
+            list.add(obj);
+        }
+        String url = cloudUrl+"/cloud/order/deliveryorder/update";
+        JSONObject param = new JSONObject();
+        param.put("id",deliveryId);
+        param.put("packages",list);
+        InvokeUtil.invokeString(url, token, param);
         return true;
-
     }
 }
