@@ -308,6 +308,8 @@ public class CagecarServiceImpl implements CagecarService {
         if (pageNum <= 0 || pageSize < 0) {
             throw new BusinessException("00001", "分页参数有误");
         }
+        param.put("pageNum",pageNum);
+        param.put("pageSize",pageSize);
         if (statusArr != null && statusArr.size() > 0) {
             param.put("statusArr", statusArr);
         }

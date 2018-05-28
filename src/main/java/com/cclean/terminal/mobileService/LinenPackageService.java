@@ -32,7 +32,7 @@ public interface LinenPackageService {
 
     LinenPackageKZ packageKZ(String token, List<String> codes) throws BusinessException;
 
-    List<String> findPackageKZ(String token, String packageKZ) throws BusinessException;
+    LinenPackageKZ findPackageKZ(String token, String packageKZ) throws BusinessException;
 
     boolean borrow(String token, String userId, List<String> codes) throws BusinessException;
 }

@@ -265,8 +265,8 @@ public class LinenPackageController extends BaseMController {
         }
         JSONObject object = JSONObject.parseObject(param);
         String kz = object.getString("packageKZ");
-        List<String> packages = this.packageService.findPackageKZ(token, kz);
-        return new Result(packages);
+        LinenPackageKZ packKZ = this.packageService.findPackageKZ(token, kz);
+        return new Result(packKZ);
     }
 
     /**
@@ -280,12 +280,15 @@ public class LinenPackageController extends BaseMController {
     @PostMapping("/borrow")
     public Result borrow(HttpServletRequest request, @RequestBody String param) throws BusinessException {
         String token = getToken(request);
-        if (!param.contains("packageKZS")) {
-            throw new BusinessException("00001", "参数有误");
-        }
         JSONObject object = JSONObject.parseObject(param);
         String userId = object.getString("userId");
         List<String> list = JSONArray.parseArray(object.getString("packageKZS"), String.class);
+        if (StringUtils.isBlank(userId)) {
+            throw new BusinessException("00001","请选择使用者");
+        }
+        if (list == null || list.size()==0) {
+            throw new BusinessException("00001","请传入布草袋打扎号");
+        }
         boolean bl = this.packageService.borrow(token, userId, list);
         return new Result(bl);
     }

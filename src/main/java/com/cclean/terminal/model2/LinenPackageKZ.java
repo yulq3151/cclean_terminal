@@ -1,6 +1,7 @@
 package com.cclean.terminal.model2;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author yulq
@@ -12,6 +13,8 @@ public class LinenPackageKZ implements Serializable{
     private String id;
     //袋子数量
     private String count;
+    //袋子code
+    private List<String> codes;
     //状态 0正常 1使用
     private String state;
     //使用者
@@ -77,11 +80,20 @@ public class LinenPackageKZ implements Serializable{
         this.modifyTime = modifyTime;
     }
 
+    public List<String> getCodes() {
+        return codes;
+    }
+
+    public void setCodes(List<String> codes) {
+        this.codes = codes;
+    }
+
     @Override
     public String toString() {
         return "LinenPackageKZ{" +
                 "id='" + id + '\'' +
                 ", count='" + count + '\'' +
+                ", codes=" + codes +
                 ", state='" + state + '\'' +
                 ", userId='" + userId + '\'' +
                 ", creator='" + creator + '\'' +

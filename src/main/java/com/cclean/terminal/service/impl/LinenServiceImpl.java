@@ -13,6 +13,7 @@ import com.cclean.terminal.service.*;
 import com.cclean.terminal.util.FastJsonUtil;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
+import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,14 +176,14 @@ public class LinenServiceImpl implements LinenService {
         try {
             if (accessToken == null) return Result.paramNull();
             logger.info("accessToken value is:" + accessToken);
-
+            if (StringUtils.isHasEmpty(linenScrapVO.getResponsibility(),linenScrapVO.getScrapReasonId())) {
+                throw new BusinessException("00001","请填写报废的责任方和原因");
+            }
             Linen linen = new Linen();
             String url = cloudUrl + "/linen/api/linen/scrap";
             logger.info("布草报废 cloudUrl is:{}", url);
             String js = JSONArray.toJSONString(linenScrapVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
-            jsonParam.put("wasteReason", jsonParam.getString("scrapReasonId"));
-            jsonParam.put("responsibleType", jsonParam.getString("responsibility"));
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
             logger.info("布草报废 Responses content:{} ", httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
@@ -194,7 +195,6 @@ public class LinenServiceImpl implements LinenService {
             }
 
             JSONArray jsonArray = jsonObj.getJSONArray("data");
-            if (jsonArray == null) return Result.objNull();
             for (int n = 0, m = jsonArray.size(); n < m; n++) {
                 JSONObject json = jsonArray.getJSONObject(n);
                 if (json == null) return Result.objNull();
