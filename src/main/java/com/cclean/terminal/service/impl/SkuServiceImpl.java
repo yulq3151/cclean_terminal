@@ -499,10 +499,12 @@ public class SkuServiceImpl implements SkuService {
             JSONObject object = array.get(i);
             String skuId = object.getString("skuId");
             String rfidId = object.getString("rfidId");
+            String transferState = object.getString("transferState");
             skuids.add(skuId);
             rfides.add(rfidId);
             Map<String, String> map = new HashMap<>();
             map.put("rfid", rfidId);
+            map.put("status",transferState);
             map.put("skuId", skuId);
             list.add(map);
         }
