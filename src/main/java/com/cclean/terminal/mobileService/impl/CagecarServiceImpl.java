@@ -246,7 +246,7 @@ public class CagecarServiceImpl implements CagecarService {
         if (codes == null || codes.isEmpty() || codes.size() > 1) {
             throw new BusinessException("00001", "笼车code有误");
         }
-        String url = cloudUrl + "/cagecar/api/delivery/item/insert";
+        String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("cagecarCodes", codes);
         param.put("status", status);

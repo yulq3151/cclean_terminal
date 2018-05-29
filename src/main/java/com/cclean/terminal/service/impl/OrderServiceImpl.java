@@ -45,6 +45,9 @@ public class OrderServiceImpl implements OrderService {
     @Value("${invoke.order.info}")
     private String orderInfoUrl;
 
+    @Value("${UNKNOWSKU}")
+    private String UNKNOWSKU;
+
     @Resource
     private HotelService hotelService;
 
@@ -99,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
         JSONArray skuListJson = orderJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        if (list!=null) {
+        if (list != null) {
             Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
         }
         order.setSkuStatisticss(list);
@@ -185,5 +188,114 @@ public class OrderServiceImpl implements OrderService {
         return list;
 
     }
+
+    /**
+     * 查询未复核收脏单列表
+     *
+     * @param token
+     * @param pageNum
+     * @param pageSize
+     * @param hotelIds
+     * @param pointIds
+     * @param startTime
+     * @param endTime
+     * @param checkstate
+     * @return
+     */
+    @Override
+    public List<Order> dirList(String token, int pageNum, int pageSize, List<String> hotelIds, List<String> pointIds, String startTime, String endTime, int checkstate) throws BusinessException {
+        String url = cloudUrl + "/cloud/order/scaninfo/page";
+        JSONObject param = new JSONObject();
+        param.put("hotelIds", hotelIds);
+        param.put("pointIds", pointIds);
+        param.put("checkState", checkstate);
+        param.put("pageNum", pageNum);
+        param.put("pageSize", pageSize);
+        if (startTime != null) {
+            param.put("startTime", startTime);
+        }
+        if (endTime != null) {
+            param.put("endTime", endTime);
+        }
+        JSONObject data = InvokeUtil.invokeResult(url, token, param);
+        List<Order> list = new ArrayList<>();
+        if (data == null) {
+            return list;
+        }
+        List<JSONObject> array = JSONArray.parseArray(data.getString("list"), JSONObject.class);
+        if (array == null || array.size() == 0) {
+            return list;
+        }
+        Set<String> hids = new HashSet<>();
+        Set<String> pids = new HashSet<>();
+        Set<String> uids = new HashSet<>();
+        Set<String> sids = new HashSet<>();
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject object = array.get(i);
+            String hotelId = object.getString("hotelId");
+            String pointId = object.getString("pointId");
+            String operator = object.getString("operator");
+            hids.add(hotelId);
+            pids.add(pointId);
+            uids.add(operator);
+            List<JSONObject> skus = JSONArray.parseArray(object.getString("skus"), JSONObject.class);
+            if (skus != null && skus.size() > 0) {
+                for (int j = 0; j < skus.size(); j++) {
+                    JSONObject sku = skus.get(j);
+                    String skuId = sku.getString("skuId");
+                    if (UNKNOWSKU.equals(skuId)) {
+                        break;
+                    }
+                    sids.add(skuId);
+                }
+            }
+        }
+        Map<String, Hotel> hotels = this.hotelService.findHotelsByIds(hids);
+        Map<String, DeliveryPoint> points = this.hotelService.findPointsByIds(pids);
+        Map<String, Sku> skus = this.skuService.findSkusByIds(sids);
+        Map<String, String> users = this.userService.findUsersByIds(uids, token);
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject object = array.get(i);
+            Order order = new Order();
+            String id = object.getString("id");
+            String hotelId = object.getString("hotelId");
+            String pointId = object.getString("pointId");
+            String operator = object.getString("operator");
+            Date createTime = object.getDate("createTime");
+            Date modifyTime = object.getDate("modifyTime");
+            order.setId(id);
+            order.setHotel(hotels.get(hotelId));
+            order.setDeliveryPoint(points.get(pointId));
+            order.setOperator(operator);
+            order.setOperatorName(users.get(operator));
+            order.setCreateTime(createTime);
+            order.setModifyTime(modifyTime);
+            order.setOrderDate(createTime);
+            List<SkuStatistics> skulist = new ArrayList<>();
+            List<JSONObject> skuobj = JSONArray.parseArray(object.getString("skus"), JSONObject.class);
+            int count = 0;
+            if (skuobj != null && skuobj.size() > 0) {
+                for (int j = 0; j < skuobj.size(); j++) {
+                    JSONObject sku = skuobj.get(j);
+                    String skuId = sku.getString("skuId");
+                    if (UNKNOWSKU.equals(skuId)) {
+                        break;
+                    }
+                    Integer total = sku.getInteger("total");
+                    SkuStatistics skusta = new SkuStatistics();
+                    skusta.setSku(skus.get(skuId));
+                    skusta.setCount(total);
+                    skulist.add(skusta);
+                    count += total;
+                }
+            }
+            order.setSkuStatisticss(skulist);
+            order.setSkuStatisTotal(count);
+            list.add(order);
+        }
+
+        return list;
+    }
+
 
 }
