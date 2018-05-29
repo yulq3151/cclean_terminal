@@ -99,9 +99,6 @@ public class LinenPackageController extends BaseMController {
         int linentype = object.getIntValue("linentype");
         int usetype = object.getIntValue("usetype");
         String userId = object.getString("userId");
-        if (linentype != 1 && linentype != 2) {
-            throw new BusinessException("00001", "布草袋类型未知");
-        }
         if (usetype != 1 && usetype != 2) {
             throw new BusinessException("00001", "布草袋状态未知");
         }

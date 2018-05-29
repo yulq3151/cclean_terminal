@@ -1,8 +1,9 @@
 package com.cclean.terminal.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.config.Result;
 import com.cclean.terminal.exception.BusinessException;
-import com.cclean.terminal.model.SkuReceived;
 import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.vo.RfidsVO;
 import com.cclean.terminal.vo.SkuVO;
@@ -47,38 +48,25 @@ public class SkuController extends BaseController {
     }
 
     /**
-     * 布草收脏统计
-     * @param rfidsVO
-     * @param request
-     * @return
-     * @throws BusinessException
-     */
-    @PostMapping("/recvstatistics")
-    public Result recvstatistics(@RequestBody RfidsVO rfidsVO,HttpServletRequest request) throws BusinessException {
-        String token = getToken(request);
-        List<String> rfids = rfidsVO.getRfids();
-        if (rfids == null || rfids.size()==0){
-            return new Result("00001","请传入rfids");
-        }
-        SkuReceived received = this.skuService.recvstatistics(token, rfids);
-        return new Result(received);
-    }
-
-    /**
      * 布草sku信息查询
-     * @param rfidsVO
+     * @param param
      * @param request
      * @return
      * @throws BusinessException
      */
-    @PostMapping("/review")
-    public Result findSkuByrfid(@RequestBody RfidsVO rfidsVO,HttpServletRequest request) throws BusinessException {
+    @PostMapping("/scanReview")
+    public Result findSkuByrfid(@RequestBody String param,HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
-        List<String> rfids = rfidsVO.getRfids();
+        JSONObject obj = JSONObject.parseObject(param);
+        String scanTime = obj.getString("scanTime");
+        if (scanTime==null) {
+            throw new BusinessException("00001","请传入扫描时间");
+        }
+        List<String> rfids = JSONArray.parseArray(obj.getString("rfids"), String.class);
         if (rfids == null || rfids.size()==0){
             return new Result("00001","请传入rfids");
         }
-        List<Map<String, String>> rfides = this.skuService.findSkuByRfid(token, rfids);
+        List<Map<String, String>> rfides = this.skuService.findSkuByRfid(token, rfids, scanTime);
         return new Result(rfides);
     }
 }

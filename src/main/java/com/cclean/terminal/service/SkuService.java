@@ -26,7 +26,5 @@ public interface SkuService {
 
     Map<String, Sku> findSkusByIds(Set<String> ids) throws BusinessException;
 
-    SkuReceived recvstatistics(String token, List<String> rfids) throws BusinessException;
-
-    List<Map<String, String>> findSkuByRfid(String token, List<String> rfids) throws BusinessException;
+    List<Map<String, String>> findSkuByRfid(String token, List<String> rfids, String scanTime) throws BusinessException;
 }
