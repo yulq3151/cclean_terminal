@@ -42,6 +42,9 @@ public class LinenServiceImpl implements LinenService {
     @Value("${cloud.url}")
     private String cloudUrl;
 
+    @Value("${UNKNOWSKU}")
+    private String UNKNOWSKU;
+
     @Autowired
     SkuService skuService;
 
@@ -106,7 +109,7 @@ public class LinenServiceImpl implements LinenService {
                 linen.setWashCount(linenJson.getInteger("washTime"));
                 linen.setReceiveState(linenJson.getInteger("transferState"));
                 linen.setLevel(linenJson.getString("level"));
-                Sku sku = skuService.findSkuById(accessToken, new IdVO(linenJson.getString("skuId")));
+                Sku sku = skuService.findSkuById(accessToken, linenJson.getString("skuId"));
                 linen.setSku(sku);
                 Property property = new Property();
                 property.setId(linenJson.getString("propertyOwnerId"));
@@ -138,9 +141,12 @@ public class LinenServiceImpl implements LinenService {
     public Result update(String accessToken, LinenUpdateVO linenUpdateVO) {
         Result result = Result.success();
         try {
-            if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
-
+            List<String> rfids = linenUpdateVO.getRfids();
+            if (rfids == null || rfids.size() == 0) {
+                throw new BusinessException("00001", "请传入rfids");
+            }
+            Set<String> set = new HashSet<>(rfids);
+            linenUpdateVO.setRfids(new ArrayList<>(set));
             StringBuffer url = new StringBuffer(cloudUrl);
             if (linenUpdateVO.getType() == 0) {
                 url.append("/linen/api/linen/insert");
@@ -148,7 +154,6 @@ public class LinenServiceImpl implements LinenService {
                 url.append("/linen/api/linen/update");
             }
             logger.info("update cloudUrl is:{}", url);
-
             String js = JSONArray.toJSONString(linenUpdateVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url.toString(), accessToken, jsonParam);
@@ -176,8 +181,14 @@ public class LinenServiceImpl implements LinenService {
         try {
             if (accessToken == null) return Result.paramNull();
             logger.info("accessToken value is:" + accessToken);
-            if (StringUtils.isHasEmpty(linenScrapVO.getResponsibility(),linenScrapVO.getScrapReasonId())) {
-                throw new BusinessException("00001","请填写报废的责任方和原因");
+            String responsibility = linenScrapVO.getResponsibility();
+            if (StringUtils.isHasEmpty(responsibility, linenScrapVO.getScrapReasonId())) {
+                throw new BusinessException("00001", "请填写报废的责任方和原因");
+            }
+            if ("0".equals(responsibility) || "1".equals(responsibility) || "2".equals(responsibility)) {
+                if (StringUtils.isBlank(linenScrapVO.getScrapReasonId())) {
+                    throw new BusinessException("00001", "请指明责任方单位");
+                }
             }
             Linen linen = new Linen();
             String url = cloudUrl + "/linen/api/linen/scrap";
@@ -229,20 +240,30 @@ public class LinenServiceImpl implements LinenService {
 
     }
 
+    /**
+     * 布草收脏
+     *
+     * @param accessToken
+     * @param linenDirtVO
+     * @return
+     */
     @Override
     public Result dirt(String accessToken, LinenDirtVO linenDirtVO) {
         Result result = Result.success();
         try {
-            if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
-
+            List<String> rfids = linenDirtVO.getRfids();
+            if (rfids == null || rfids.size() == 0) {
+                throw new BusinessException("00001", "请传入rfids");
+            }
+            HashSet set = new HashSet(rfids);
+            linenDirtVO.setRfids(new ArrayList<>(set));
             Order order = new Order();
             String url = linenUrl + "/server/order/order/scaninfo";
             logger.info("order cloudUrl is:{}", url);
-            for (int i = 0; i < linenDirtVO.getSkus().size(); i++) {
-                linenDirtVO.getSkus().get(i).
-                        setSkuId(linenDirtVO.getSkus().
-                                get(i).getSku().getId());
+            List<SkuStatisticsCopy> skus = linenDirtVO.getSkus();
+            for (int i = 0; i < skus.size(); i++) {
+                String id = skus.get(i).getSku().getId();
+                skus.get(i).setSkuId(id);
             }
             String js = JSONArray.toJSONString(linenDirtVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
@@ -277,7 +298,7 @@ public class LinenServiceImpl implements LinenService {
             if (skuListJson != null || skuListJson.size() > 0) {
                 for (int k = 0; k < skuListJson.size(); k++) {
                     JSONObject object1 = skuListJson.getJSONObject(k);
-                    Sku sku = skuService.findSkuById(accessToken, new IdVO(object1.getString("skuId")));
+                    Sku sku = skuService.findSkuById(accessToken, object1.getString("skuId"));
                     Integer count = object1.getInteger("total");
                     SkuStatistics skuStatistics = new SkuStatistics();
                     skuStatistics.setSku(sku);
@@ -300,7 +321,8 @@ public class LinenServiceImpl implements LinenService {
     }
 
     /**
-     *  布草复核
+     * 脏布草复核
+     *
      * @param token
      * @param ids
      * @param rfids
@@ -308,72 +330,102 @@ public class LinenServiceImpl implements LinenService {
      * @throws BusinessException
      */
     @Override
-    public Result recheck(String token, List<String> ids, List<String> rfids) throws BusinessException {
-        String url = cloudUrl+"/linen/api/linen/alreadyinsert";
+    public Result recheck(String token, Set<String> ids, Set<String> rfids) throws BusinessException {
+
+        String url = cloudUrl + "/linen/api/linen/alreadyinsert";
         JSONObject param = new JSONObject();
-        param.put("rfids",rfids);
+        param.put("rfids", rfids);
         String data = InvokeUtil.invokeString(url, token, param);
         //已登记rfids
         List<String> list = JSONArray.parseArray(data, String.class);
         //统计sku数量
-        url = cloudUrl+"/linen/api/sku/statistic";
-        param.put("rfids",list);
+        url = cloudUrl + "/linen/api/sku/statistic";
+        param.put("rfids", list);
         String datajson = InvokeUtil.invokeString(url, token, param);
         List<JSONObject> array = JSONArray.parseArray(datajson, JSONObject.class);
         //查询订单的数量
-        url = cloudUrl+"/cloud/order/order/list";
+        url = cloudUrl + "/cloud/order/scaninfo/list";
         param.clear();
-        param.put("ids",ids);
+        param.put("ids", ids);
         String dataorder = InvokeUtil.invokeString(url, token, param);
         List<JSONObject> orders = JSONArray.parseArray(dataorder, JSONObject.class);
         if (orders.size() != ids.size()) {
-            throw new BusinessException("00001","传入订单号有误，未查询到相关订单");
+            throw new BusinessException("00001", "传入收脏单有误，未查询到相关收脏单");
         }
-        Map<String,Integer> skucount = new HashMap<>();
-        if (orders != null && orders.size()>0) {
+        Map<String, Integer> skucount = new HashMap<>();
+        if (orders != null && orders.size() > 0) {
             for (int i = 0; i < orders.size(); i++) {
                 JSONObject order = orders.get(i);
                 JSONArray skus = order.getJSONArray("skus");
-                if (skus!=null && skus.size()>0) {
+                if (skus != null && skus.size() > 0) {
                     for (int j = 0; j < skus.size(); j++) {
                         JSONObject sku = skus.getJSONObject(j);
                         String skuId = sku.getString("skuId");
                         Integer total = sku.getInteger("total");
                         if (skucount.containsKey(skuId)) {
                             Integer count = skucount.get(skuId);
-                            skucount.put(skuId,count+total);
-                        }else {
-                            skucount.put(skuId,total);
+                            skucount.put(skuId, count + total);
+                        } else {
+                            skucount.put(skuId, total);
                         }
                     }
                 }
             }
         }
+        List<Map<String, Object>> skus = new ArrayList<>();
+        Set<String> lsset = new HashSet<>();
+        if (array != null && array.size() > 0) {
+            for (int i = 0; i < array.size(); i++) {
+                Map<String, Object> sku = new HashMap<>();
+                JSONObject object = array.get(i);
+                String skuId = object.getString("skuId");
+                lsset.add(skuId);
+                sku.put("skuId", skuId);
+                int count = object.getIntValue("count");
+                if (skucount.containsKey(skuId)) {
+                    Integer count1 = skucount.get(skuId);
+                    sku.put("total", count);
+                    sku.put("estimateTotal", count1);
+                } else {
+                    sku.put("total", count);
+                    sku.put("estimateTotal", 0);
+                }
+                skus.add(sku);
+            }
+        }
+        Set<String> set = skucount.keySet();
+        set.removeAll(lsset);
+        for (String skuId : set) {
+            Map<String, Object> sku = new HashMap<>();
+            sku.put("skuId", skuId);
+            sku.put("total", 0);
+            sku.put("estimateTotal", skucount.get(skuId));
+            skus.add(sku);
+        }
         //未登记的rfids
         List<String> unregist = new ArrayList<>(rfids);
         unregist.removeAll(list);
-        if (unregist.size()>0) {
-            JSONObject obj = new JSONObject();
-            obj.put("skuId","00000000000000000000000000000000");
-            obj.put("count",unregist.size());
-            array.add(obj);
+        if (unregist.size() > 0) {
+            Map<String, Object> sku = new HashMap<>();
+            sku.put("skuId", UNKNOWSKU);
+            sku.put("total", unregist.size());
+            sku.put("estimateTotal", 0);
+            skus.add(sku);
         }
         //基础服务
-        url = cloudUrl+"/cloud/order/order/recheck";
+        url = cloudUrl + "/cloud/order/scaninfo/recheck";
         param.clear();
-        param.put("basiss",ids);
-        param.put("rfids",rfids);
-        param.put("skuStatisticss",array);          //rfids统计sku数量
-        param.put("estimateTotal",skucount);        //原订sku单数量
-//        param.put("unregisteredAmout",unregist.size());        //未登记数量
+        param.put("scanIds", ids);
+        param.put("rfids", rfids);
+        param.put("skus", skus);          //rfids统计sku数量
         String str = InvokeUtil.invokeString(url, token, param);
         //变更rfids的状态
-        String stateUrl= cloudUrl+"/linen/api/linen/update";
+        String stateUrl = cloudUrl + "/linen/api/linen/update";
         param.clear();
-        param.put("transferState",4);
-        param.put("rfids",list);
-        HttpUtil.doPost(stateUrl,token,param);
-        return new Result("00000","操作成功");
+        param.put("transferState", 4);
+        param.put("rfids", list);
+        HttpUtil.doPost(stateUrl, token, param);
+        return new Result("00000", "操作成功");
     }
 
     @Override
@@ -428,10 +480,8 @@ public class LinenServiceImpl implements LinenService {
 
             JSONObject object = jsonArray.getJSONObject(0);
             skuStatistics.setCount(object.getInteger("count"));
-            IdVO idVO = new IdVO();
             String skuId = object.getString("skuId");
-            idVO.setId(skuId);
-            Sku sku = skuService.findSkuById(accessToken, idVO);
+            Sku sku = skuService.findSkuById(accessToken, skuId);
             if (sku == null || skuStatistics.getCount() != sku.getPackCnt()) {
                 result.setCodeInfo("00109", "捆扎数不一致");
                 return result;

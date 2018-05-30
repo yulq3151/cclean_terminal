@@ -263,11 +263,15 @@ public class OrderServiceImpl implements OrderService {
             String operator = object.getString("operator");
             Date createTime = object.getDate("createTime");
             Date modifyTime = object.getDate("modifyTime");
+            int type = object.getIntValue("type");
+            int state = object.getIntValue("state");
             order.setId(id);
             order.setHotel(hotels.get(hotelId));
             order.setDeliveryPoint(points.get(pointId));
             order.setOperator(operator);
             order.setOperatorName(users.get(operator));
+            order.setType(type);
+            order.setState(state);
             order.setCreateTime(createTime);
             order.setModifyTime(modifyTime);
             order.setOrderDate(createTime);

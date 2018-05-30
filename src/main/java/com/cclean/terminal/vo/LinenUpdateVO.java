@@ -1,6 +1,5 @@
 package com.cclean.terminal.vo;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**

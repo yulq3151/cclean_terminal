@@ -119,9 +119,7 @@ public class SkuServiceImpl implements SkuService {
                 JSONObject skuJson = skuArray.getJSONObject(n);
                 SkuStatistics skuStatistics = new SkuStatistics();
                 skuStatistics.setCount(skuJson.getInteger("count"));
-                IdVO idVO = new IdVO();
-                idVO.setId(skuJson.getString("skuId"));
-                Sku sku = findSkuById(accessToken, idVO);
+                Sku sku = findSkuById(accessToken, skuJson.getString("skuId"));
                 skuStatistics.setSku(sku);
                 skuStatisticsList.add(skuStatistics);
             }
@@ -230,16 +228,18 @@ public class SkuServiceImpl implements SkuService {
      * 查询sku详情
      *
      * @param accessToken 授权码
-     * @param idVO        参数（id）
+     * @param id        参数（id）
      * @return
      * @throws BusinessException
      */
     @Override
-    public Sku findSkuById(String accessToken, IdVO idVO) throws BusinessException {
-
+    public Sku findSkuById(String accessToken, String id) throws BusinessException {
+        if (StringUtils.isBlank(id)) {
+            return null;
+        }
         String url = linenUrl + skuInfoInvokeUrl;
         JSONObject jsonParam = new JSONObject();
-        jsonParam.put("id", idVO.getId());
+        jsonParam.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
         logger.info("根据id查询sku：respose:{}", httpEntitys);
         JSONObject jsonResult = JSONObject.parseObject(httpEntitys);
@@ -274,7 +274,7 @@ public class SkuServiceImpl implements SkuService {
             if (skuListJson != null && skuListJson.size() > 0) {
                 for (int n = 0, m = skuListJson.size(); n < m; n++) {
                     JSONObject skuJson = skuListJson.getJSONObject(n);
-                    Sku sku = this.findSkuById(accessToken, new IdVO(skuJson.getString("skuId")));
+                    Sku sku = this.findSkuById(accessToken, skuJson.getString("skuId"));
                     SkuStatistics statistics = new SkuStatistics();
                     statistics.setSku(sku);
 
@@ -378,37 +378,36 @@ public class SkuServiceImpl implements SkuService {
         param.put("rfids", set);
         String data = InvokeUtil.invokeString(url, token, param);
         List<JSONObject> array = JSONArray.parseArray(data, JSONObject.class);
-        if (array == null || array.size() == 0) {
-            return list;
-        }
-        Set<String> skuids = new HashSet<>();
-        Set<String> rfides = new HashSet<>();
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject object = array.get(i);
-            String skuId = object.getString("skuId");
-            String rfidId = object.getString("rfidId");
-            String transferState = object.getString("transferState");
-            skuids.add(skuId);
-            rfides.add(rfidId);
-            Map<String, String> map = new HashMap<>();
-            map.put("rfid", rfidId);
-            map.put("scanTime",scanTime);
-            map.put("status",transferState);
-            map.put("skuId", skuId);
-            list.add(map);
-        }
-        if (skuids.size() > 0) {
-            Map<String, Sku> skus = this.findSkusByIds(skuids);
-            for (int i = 0; i < list.size(); i++) {
-                Map<String, String> map = list.get(i);
-                String skuId = map.get("skuId");
-                Sku sku = skus.get(skuId);
-                map.put("skuName", sku.getName());
-                map.put("skuCode",sku.getCode());
+        if (array != null && array.size() > 0) {
+            Set<String> skuids = new HashSet<>();
+            Set<String> rfides = new HashSet<>();
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject object = array.get(i);
+                String skuId = object.getString("skuId");
+                String rfidId = object.getString("rfidId");
+                String transferState = object.getString("transferState");
+                skuids.add(skuId);
+                rfides.add(rfidId);
+                Map<String, String> map = new HashMap<>();
+                map.put("rfid", rfidId);
+                map.put("scanTime",scanTime);
+                map.put("status",transferState);
+                map.put("skuId", skuId);
+                list.add(map);
             }
+            if (skuids.size() > 0) {
+                Map<String, Sku> skus = this.findSkusByIds(skuids);
+                for (int i = 0; i < list.size(); i++) {
+                    Map<String, String> map = list.get(i);
+                    String skuId = map.get("skuId");
+                    Sku sku = skus.get(skuId);
+                    map.put("skuName", sku.getName());
+                    map.put("skuCode",sku.getCode());
+                }
+            }
+            //去除已登记的
+            set.removeAll(rfides);
         }
-        //去除已登记的
-        set.removeAll(rfides);
         if (set.size() > 0) {
             for (String rfid : set) {
                 Map<String,String> map = new HashMap<>();
