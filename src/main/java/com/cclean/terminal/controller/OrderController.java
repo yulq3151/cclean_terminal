@@ -1,16 +1,19 @@
 package com.cclean.terminal.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.constant.Constant;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.model.Order;
 import com.cclean.terminal.model.Result;
 import com.cclean.terminal.service.OrderService;
+import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,15 +35,30 @@ public class OrderController extends BaseController {
      */
     // RequestBody的属性required，为true代表所有参数必填，为false非必填，参数由自己判断
     @RequestMapping(value = "/unrecheck", method = RequestMethod.POST)
-    @ResponseBody
-    public Result unrecheck(@RequestBody(required = false) OrderVO orderVO, HttpServletRequest request) throws BusinessException {
-        if (orderVO.getHotelId() == null) {
-            return new Result(Constant.RET_CODE_PARAM_NULL, "酒店id必填");
+    public Result unrecheck(@RequestBody String param, HttpServletRequest request) throws BusinessException {
+        String token = getToken(request);
+        JSONObject obj = JSONObject.parseObject(param);
+        String hotelId = obj.getString("hotelId");
+        if (StringUtils.isBlank(hotelId)) {
+            throw new BusinessException("00001", "请选择酒店");
         }
-        orderVO.setCheckState(0);
-        orderVO.setOrderType(1);
-        List<Order> data = orderService.list(getToken(request), orderVO);
-        return new Result(data);
+        String pointId = obj.getString("pointId");
+        int pageNum = obj.getIntValue("pageNum");
+        int pageSize = obj.getIntValue("pageSize");
+        if (pageNum <= 0) {
+            pageNum = 1;
+        }
+        if (pageSize <= 0) {
+            pageSize = 50;
+        }
+        List<String> hotelIds = new ArrayList<>();
+        hotelIds.add(hotelId);
+        List<String> pointIds = new ArrayList<>();
+        if (StringUtils.isNotBlank(pointId)) {
+            pointIds.add(pointId);
+        }
+        List<Order> orders = this.orderService.dirList(token, pageNum, pageSize, hotelIds, pointIds, null, null, 0);
+        return new Result(orders);
     }
 
     /**

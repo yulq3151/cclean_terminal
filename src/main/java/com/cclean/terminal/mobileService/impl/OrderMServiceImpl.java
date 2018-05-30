@@ -93,36 +93,19 @@ public class OrderMServiceImpl implements OrderMService {
         }
         Set<String> hotelSet = new HashSet<>();
         Set<String> pointSet = new HashSet<>();
-//        Set<String> skuSet = new HashSet<>();
-//        Set<String> userSet = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
             Order order = list.get(i);
             hotelSet.add(order.getHotelId());
             pointSet.add(order.getPointId());
-//            userSet.add(order.getOperator());
-//            OrderSku[] skus = order.getSkus();
-//            for (int j = 0; j < skus.length; j++) {
-//                skuSet.add(skus[j].getSkuId());
-//            }
         }
 
         Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelSet);
         Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointSet);
-//        Map<String, String> users = this.conService.findUsersByIds(userSet);
-//        Map<String, Sku> skus = this.conService.findSkusByIds(skuSet);
 
         for (int i = 0; i < list.size(); i++) {
             Order order = list.get(i);
             order.setHotel(hotels.get(order.getHotelId()));
             order.setDrypoint(points.get(order.getPointId()));
-//            order.setOperatorName(users.get(order.getOperator()));
-//            OrderSku[] skusta = order.getSkus();
-//            for (int j = 0; j < skusta.length; j++) {
-//                Sku sku = skus.get(skusta[j].getSkuId());
-//                skusta[j].setSkuName(sku.getName());
-//                skusta[j].setSizeValue(sku.getSizeValue());
-//            }
-
         }
         return new PageMo(list, orderVO.getPageNum(), orderVO.getPageSize(), total);
 
@@ -199,21 +182,6 @@ public class OrderMServiceImpl implements OrderMService {
         if (pickorderOrder == null) {
             throw new BusinessException("00001", "生成任务单失败");
         }
-//        Map<String, Object> map = this.details(pickorderOrder.getHotelId(), pickorderOrder.getPointId(), token);
-//        pickorderOrder.setHotel((HotelBo) map.get("hotel"));
-//        pickorderOrder.setDrypoint((DeliveryPointM) map.get("point"));
-//        //统计任务单里sku应配数量
-//        Integer totalcon = 0;
-//        for (int j = 0; j < pickorderOrder.getSkus().length; j++) {
-//            PickOrderSku sku = pickorderOrder.getSkus()[j];
-//            Sku sku1 = this.skuService.findSkuById(token, new IdVO(sku.getSkuId()));
-//            if (sku1 != null) {
-//                sku.setSkuName(sku1.getName());
-//            }
-//            Integer count = sku.getExpectCount();
-//            totalcon += (count == null ? 0 : count);
-//        }
-//        pickorderOrder.setTotalCnt(totalcon);
         return pickorderOrder;
     }
 

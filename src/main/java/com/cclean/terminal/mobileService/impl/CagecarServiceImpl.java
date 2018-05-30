@@ -98,7 +98,7 @@ public class CagecarServiceImpl implements CagecarService {
                 this.signEmpty(token, status, codes);
                 return true;
             case 30:
-                this.load(token, codes, packCodes);
+                this.load(token, codes, packCodes,status );
                 return true;
             case 40:
                 this.back(token, userId, status, codes);
@@ -239,15 +239,17 @@ public class CagecarServiceImpl implements CagecarService {
      * @param token
      * @param codes   使用记录的id
      * @param kzcodes 打扎单号
+     * @param status
      * @return 使用记录ID
      */
-    private boolean load(String token, List<String> codes, List<String> kzcodes) throws BusinessException {
+    private boolean load(String token, List<String> codes, List<String> kzcodes, int status) throws BusinessException {
         if (codes == null || codes.isEmpty() || codes.size() > 1) {
             throw new BusinessException("00001", "笼车code有误");
         }
-        String url = cloudUrl + "/cagecar/api/delivery/item/insert";
+        String url = cloudUrl + "/cagecar/api/cagecar/transform";
         JSONObject param = new JSONObject();
         param.put("cagecarCodes", codes);
+        param.put("status", status);
         param.put("packCodes", new HashSet<>(kzcodes));
         InvokeUtil.invokeString(url, token, param);
         return true;

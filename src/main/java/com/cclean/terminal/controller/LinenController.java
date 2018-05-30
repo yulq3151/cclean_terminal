@@ -96,11 +96,11 @@ public class LinenController extends BaseController {
     @ResponseBody
     public Result recheck(@RequestBody LinenRecheckVO linenRecheckVO, HttpServletRequest request) throws BusinessException {
         String token = getToken(request);
-        List<String> ids = linenRecheckVO.getBasiss();
+        Set<String> ids = new HashSet<>(linenRecheckVO.getBasiss());
         if (ids == null || ids.size() == 0) {
             throw new BusinessException("00001", "请传入订单ID");
         }
-        List<String> rfids = linenRecheckVO.getRfids();
+        Set<String> rfids = new HashSet<>(linenRecheckVO.getRfids());
         if (rfids == null || rfids.size() == 0) {
             throw new BusinessException("00001", "请传入rfids");
         }
