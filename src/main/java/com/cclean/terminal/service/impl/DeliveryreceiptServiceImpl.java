@@ -117,7 +117,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
 
         //调用接口推送消息
-        String urlmsg = serviceUrl+"/linen/cleanRfids";
+        String urlmsg = msgUrl+"/linen/cleanRfids";
         JSONObject param = new JSONObject();
         param.put("type",1);
         param.put("orderId",id);

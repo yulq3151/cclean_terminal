@@ -79,7 +79,6 @@ public class HotelMServiceImpl implements HotelMService {
         Integer total = dataJson.getInteger("total");
         String list = dataJson.getString("list");
         List<HotelBo> hotelBos = JSONObject.parseArray(list, HotelBo.class);
-        Collections.sort(hotelBos,Comparator.comparing(h->h.getName()));
         PageVO pageVO = new PageVO();
         pageVO.setPageNum(hotelVO.getPageNum());
         pageVO.setPageSize(hotelVO.getPageSize());
@@ -144,7 +143,6 @@ public class HotelMServiceImpl implements HotelMService {
             return new ArrayList<>();
         }
         List<DeliveryPointM> mList = JSONArray.parseArray(list, DeliveryPointM.class);
-        Collections.sort(mList,Comparator.comparing(d->d.getName()));
         if (mList != null && mList.size() > 0) {
             String orurl = cloudUrl + "/cloud/order/order/orderpoint";
             String data = InvokeUtil.invokeString(orurl, token, param);
