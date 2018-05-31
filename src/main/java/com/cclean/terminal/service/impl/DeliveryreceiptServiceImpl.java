@@ -122,13 +122,12 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
 
         //调用接口推送消息
         logger.info("配送单消息推送开始：{}",System.currentTimeMillis());
-        String urlmsg = msgUrl+"/linen/cleanRfids";
         JSONObject param = new JSONObject();
         param.put("type",1);
         param.put("orderId",id);
         param.put("hotelId",hotelId);
         param.put("pointId",pointId);
-        HttpUtil.doPost(urlmsg, token,param);
+        HttpUtil.doPost(msgUrl, token,param);
         logger.info("配送单消息推送结束：{}",System.currentTimeMillis());
 
         return deliveryReceipt;

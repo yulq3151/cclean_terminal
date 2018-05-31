@@ -42,9 +42,9 @@ public class BodyFilter implements Filter {
         body = body.replaceAll("\n", "");
         String requestUri = requestWrapper.getRequestURI();
         String token = requestWrapper.getHeader("token");
-        logger.info("request_Uri:{}" , requestUri);
-        logger.info("request_token:{}", token);
-        logger.info("request_Body:{}" ,body);
+        logger.info("获取请求:request_Uri:{}" , requestUri);
+        logger.info("获取请求:request_token:{}", token);
+        logger.info("获取请求:request_Body:{}" ,body);
 
         if (requestUri.contains("/user/login") || requestUri.contains("user/logout")
                 ||requestUri.contains("/user/mobile/login") || requestUri.contains("version") ) {

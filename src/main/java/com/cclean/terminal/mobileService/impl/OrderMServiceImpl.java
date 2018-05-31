@@ -352,13 +352,12 @@ public class OrderMServiceImpl implements OrderMService {
         DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
         //调用接口推送消息
         logger.info("配送单消息推送开始：{}",System.currentTimeMillis());
-        String urlmsg = msgUrl+"/linen/cleanRfids";
         JSONObject mparam = new JSONObject();
         mparam.put("type",1);
         mparam.put("orderId",deliveryOrder.getId());
         mparam.put("hotelId",deliveryOrder.getHotelId());
         mparam.put("pointId",deliveryOrder.getPointId());
-        HttpUtil.doPost(urlmsg, token,mparam);
+        HttpUtil.doPost(msgUrl, token,mparam);
         logger.info("配送单消息推送结束：{}",System.currentTimeMillis());
         return deliveryOrder;
 

@@ -138,11 +138,11 @@ public class HotelMServiceImpl implements HotelMService {
         if (!"00000".equals(retCode)) {
             throw new BusinessException(retCode, jsonObject1.getString("retInfo"));
         }
-        String list = jsonObject1.getString("list");
-        if (StringUtils.isBlank(list)) {
+        JSONObject page = jsonObject1.getJSONObject("page");
+        if (page == null) {
             return new ArrayList<>();
         }
-        List<DeliveryPointM> mList = JSONArray.parseArray(list, DeliveryPointM.class);
+        List<DeliveryPointM> mList = JSONArray.parseArray(page.getString("list"), DeliveryPointM.class);
         if (mList != null && mList.size() > 0) {
             String orurl = cloudUrl + "/cloud/order/order/orderpoint";
             String data = InvokeUtil.invokeString(orurl, token, param);

@@ -101,11 +101,12 @@ public class HttpUtil {
             }
             httppost.setHeader("Content-Type", "application/json;charset=UTF-8");
             CloseableHttpResponse response = httpclient.execute(httppost);
-            logger.info("请求基础服务：url:{},请求参数：{},返回结果：{}", url, token, response.getEntity());
             try {
                 HttpEntity entitys = response.getEntity();
                 if (entitys != null) {
-                    return EntityUtils.toString(entitys, "UTF-8");
+                    String msg = EntityUtils.toString(entitys, "UTF-8");
+                    logger.info("请求基础服务：url:{},请求token：{},返回结果：{}", url, token, msg);
+                    return msg;
                 }
             } finally {
                 response.close();
