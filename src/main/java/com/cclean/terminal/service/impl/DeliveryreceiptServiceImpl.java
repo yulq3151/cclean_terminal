@@ -14,6 +14,8 @@ import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.GenerateVO;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ import java.util.*;
  */
 @Service
 public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
+    private final static Logger logger = LoggerFactory.getLogger(DeliveryreceiptServiceImpl.class);
+
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -117,6 +121,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
 
         //调用接口推送消息
+        logger.info("配送单消息推送开始：{}",System.currentTimeMillis());
         String urlmsg = msgUrl+"/linen/cleanRfids";
         JSONObject param = new JSONObject();
         param.put("type",1);
@@ -124,6 +129,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         param.put("hotelId",hotelId);
         param.put("pointId",pointId);
         HttpUtil.doPost(urlmsg, token,param);
+        logger.info("配送单消息推送结束：{}",System.currentTimeMillis());
 
         return deliveryReceipt;
     }

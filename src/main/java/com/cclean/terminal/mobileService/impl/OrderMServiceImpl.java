@@ -16,6 +16,8 @@ import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
 import com.cclean.terminal.vo.SkuSVo;
 import com.cclean.terminal.vo.ZPickVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ import java.util.*;
  **/
 @Service
 public class OrderMServiceImpl implements OrderMService {
+    private final static Logger logger = LoggerFactory.getLogger(OrderMServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -348,6 +351,7 @@ public class OrderMServiceImpl implements OrderMService {
         this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()),"1");
         DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
         //调用接口推送消息
+        logger.info("配送单消息推送开始：{}",System.currentTimeMillis());
         String urlmsg = msgUrl+"/linen/cleanRfids";
         JSONObject mparam = new JSONObject();
         mparam.put("type",1);
@@ -355,6 +359,7 @@ public class OrderMServiceImpl implements OrderMService {
         mparam.put("hotelId",deliveryOrder.getHotelId());
         mparam.put("pointId",deliveryOrder.getPointId());
         HttpUtil.doPost(urlmsg, token,mparam);
+        logger.info("配送单消息推送结束：{}",System.currentTimeMillis());
         return deliveryOrder;
 
     }
