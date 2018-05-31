@@ -15,8 +15,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +31,6 @@ import java.util.Map;
 @RequestMapping("user")
 public class UserController extends BaseController {
 
-    private static Logger logger = LoggerFactory.getLogger(UserController.class);
-
     @Autowired
     UserService userService;
 
@@ -43,8 +39,6 @@ public class UserController extends BaseController {
     @ResponseBody
     public com.cclean.terminal.config.Result login(@RequestBody(required = false) LoginVO loginVO, HttpServletResponse response) throws BusinessException {
         if (loginVO == null) return com.cclean.terminal.config.Result.paramNull();
-        logger.info(" recheck linenRecheckVO value is:" + loginVO.toString());
-
         return userService.login(loginVO, response);
     }
 
@@ -54,8 +48,6 @@ public class UserController extends BaseController {
     public Map<String, Object> logout(@RequestBody(required = false) String token, HttpServletResponse response) throws BusinessException {
         // 验证参数
         Utils.paramIsNull(token);
-        // 退出登陆参数日志
-        logger.info("logout param:" + token.toString());
         // 退出登陆
         userService.logout(token, response);
         Map<String, Object> result = new HashMap<>();

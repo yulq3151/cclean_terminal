@@ -13,8 +13,6 @@ import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.PageVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +28,6 @@ import java.util.Set;
  **/
 @Service
 public class ConServiceImpl implements ConService {
-    private static Logger logger = LoggerFactory.getLogger(ConServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -80,7 +77,6 @@ public class ConServiceImpl implements ConService {
         param.put("size", pageVO.getPageSize());
         param.put("page", pageVO.getPageNum());
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("线路列表 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -114,7 +110,6 @@ public class ConServiceImpl implements ConService {
         param.put("pageSize", pageVO.getPageSize());
         param.put("pageNum", pageVO.getPageNum());
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("品牌列表 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -149,7 +144,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("查询打扎信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -178,7 +172,6 @@ public class ConServiceImpl implements ConService {
         param.put("ids", ids);
         param.put("type", type); //type 1使用 2解除
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("修改打扎为不可用 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -202,7 +195,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("配送点信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -229,7 +221,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("根据配送点ID查询 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -257,7 +248,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("根据配送点ID查询 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -289,12 +279,10 @@ public class ConServiceImpl implements ConService {
         } else if ("pad".equals(type)) {
             jsonObj.put("versionType", "5");
         } else {
-            logger.error("配货版本更新失败：param:{}", param);
             throw new BusinessException("00001", "获取版本失败");
         }
         String url = cloudUrl + "/cloud/basic/version/latest";
         String httpEntitys = HttpUtil.doPost(url, token, jsonObj);
-        logger.info("版本更新 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -319,7 +307,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("idList", ids);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("根据用户ID查询 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -350,7 +337,6 @@ public class ConServiceImpl implements ConService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("根据sku ID查询 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -384,7 +370,6 @@ public class ConServiceImpl implements ConService {
         param.put("pageNum", pageNum);
         param.put("pageSize", pageSize);
         JSONObject object = InvokeUtil.invokeResult(url, token, param);
-        logger.info("分类查询用户 Responses: {}", object);
         int total = object.getIntValue("total");
         List<UserInfo> list = JSONObject.parseArray(object.getString("list"), UserInfo.class);
         return new PageMo<>(list, pageNum, pageSize, total);

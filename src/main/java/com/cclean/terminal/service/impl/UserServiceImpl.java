@@ -15,8 +15,6 @@ import com.cclean.terminal.service.UserService;
 import com.cclean.terminal.util.FastJsonUtil;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.vo.LoginVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +28,6 @@ import java.util.*;
  */
 @Service
 public class UserServiceImpl implements UserService {
-
-    private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -67,7 +63,6 @@ public class UserServiceImpl implements UserService {
         String js = JSONArray.toJSONString(loginVO);
         JSONObject jsonParam = JSONArray.parseObject(js);
         String json = HttpUtil.doPost(url, "", jsonParam);
-        logger.info("userinfo：respose:{}", json);
         JSONObject jsonObject1 = JSONObject.parseObject(json);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -81,7 +76,6 @@ public class UserServiceImpl implements UserService {
         url = cloudUrl + "/cloud/user/center/user/authority";
         jsonParam = new JSONObject();
         json = HttpUtil.doPost(url, userInfo.getId(), jsonParam);
-        logger.info("用户权限：respose:{}", json);
         Type powerType = new TypeReference<ResultData<UserAuthority>>() {
         }.getType();
         ResultData<UserAuthority> powerResultData = FastJsonUtil.toObject(json, powerType);
@@ -102,7 +96,7 @@ public class UserServiceImpl implements UserService {
             return result;
         }
         List<String> fids = new ArrayList<>();
-        if (userInfoMap.containsKey("terminalDev")&&userInfoMap.get("terminalDev")!=null) {
+        if (userInfoMap.containsKey("terminalDev") && userInfoMap.get("terminalDev") != null) {
             AuthorityModel authorityModel = userInfoMap.get("terminalDev");
             TMenu tMenu = authorityModel.getRoleMenu();
             if (tMenu != null) {
@@ -124,7 +118,7 @@ public class UserServiceImpl implements UserService {
                         break;
                     }
                 }
-            }else {
+            } else {
                 result.setCodeInfo(Constant.RET_CODE_DEBUG, "未找到用户所属工厂，请联系管理员");
                 return result;
             }
@@ -181,7 +175,6 @@ public class UserServiceImpl implements UserService {
         param.put("loginName", loginVO.getLoginName());
         param.put("password", loginVO.getPassword());
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("userinfo：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -192,7 +185,6 @@ public class UserServiceImpl implements UserService {
         String url1 = cloudUrl + "/cloud/user/center/user/authority";
         //token 为用户的ID
         String httpEntitys1 = HttpUtil.doPost(url1, userInfo.getId(), param);
-        logger.info("用户权限：respose:{}", httpEntitys);
         JSONObject userauth = JSONObject.parseObject(httpEntitys1);
         JSONObject data = userauth.getJSONObject("data");
         JSONObject auths = data.getJSONObject("authorityInfo");
@@ -221,7 +213,7 @@ public class UserServiceImpl implements UserService {
 
         List<String> menus = new ArrayList<>();
         JSONObject roleMenu = terminalDev.getJSONObject("roleMenu");
-        menuToMenuList(menus,roleMenu);
+        menuToMenuList(menus, roleMenu);
         userInfo.setMenus(menus);
         return userInfo;
     }
@@ -244,7 +236,6 @@ public class UserServiceImpl implements UserService {
         JSONObject param = new JSONObject();
         param.put("idList", ids);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("用户列表：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -258,16 +249,16 @@ public class UserServiceImpl implements UserService {
         return map;
     }
 
-    private List<String> menuToMenuList(List<String> list,JSONObject menu){
+    private List<String> menuToMenuList(List<String> list, JSONObject menu) {
         if (menu == null) return list;
         list.add(menu.getString("code"));
         JSONArray menuList = menu.getJSONArray("tMenuList");
-        if(menuList != null && menuList.size() > 0){
+        if (menuList != null && menuList.size() > 0) {
             for (int i = 0; i < menuList.size(); i++) {
                 JSONObject tMenu1 = menuList.getJSONObject(i);
-                menuToMenuList(list,tMenu1);
+                menuToMenuList(list, tMenu1);
             }
         }
-        return  list;
+        return list;
     }
 }

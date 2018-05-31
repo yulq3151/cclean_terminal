@@ -8,8 +8,6 @@ import com.cclean.terminal.model.Deliveryline;
 import com.cclean.terminal.service.DeliverylineService;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.vo.PageVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 public class DeliverylineServiceImpl implements DeliverylineService {
-    private static Logger logger = LoggerFactory.getLogger(DeliverylineServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -69,7 +66,6 @@ public class DeliverylineServiceImpl implements DeliverylineService {
         }
         param.put("state", 1);
         String postjson = HttpUtil.doPost(url, token, param);
-        logger.info("线路列表：{}",postjson);
         JSONObject jsonObject = JSONObject.parseObject(postjson);
         String retCode = jsonObject.getString("retCode");
         if (!"00000".equals(retCode)) {

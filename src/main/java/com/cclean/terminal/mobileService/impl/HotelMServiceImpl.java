@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.mobileService.HotelMService;
-import com.cclean.terminal.model.DeliveryPoint;
-import com.cclean.terminal.model.Hotel;
 import com.cclean.terminal.model2.DeliveryPointM;
 import com.cclean.terminal.model2.HotelBo;
 import com.cclean.terminal.model2.HotelM;
@@ -15,8 +13,6 @@ import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.HotelVO;
 import com.cclean.terminal.vo.PageVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +25,6 @@ import java.util.*;
  **/
 @Service
 public class HotelMServiceImpl implements HotelMService {
-
-    private static Logger logger = LoggerFactory.getLogger(HotelMServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -73,7 +67,6 @@ public class HotelMServiceImpl implements HotelMService {
         jsonParam.put("isPack", 1); //配货app 只支持整扎的酒店
         jsonParam.put("factoryIds", hotelVO.getFactoryIds());
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("条件查询酒店列表 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -110,7 +103,6 @@ public class HotelMServiceImpl implements HotelMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("酒店详情所有信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -141,7 +133,6 @@ public class HotelMServiceImpl implements HotelMService {
         JSONObject param = new JSONObject();
         param.put("hotelId", hotelId);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("酒店下的配送点 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -185,7 +176,6 @@ public class HotelMServiceImpl implements HotelMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, token, param);
-        logger.info("酒店的简单信息 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -216,7 +206,6 @@ public class HotelMServiceImpl implements HotelMService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("根据酒店ID查询酒店 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -247,7 +236,6 @@ public class HotelMServiceImpl implements HotelMService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("根据酒店ID查询酒店 Responses: {}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {

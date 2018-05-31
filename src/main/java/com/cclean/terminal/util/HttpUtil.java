@@ -10,6 +10,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -19,8 +21,7 @@ import java.io.UnsupportedEncodingException;
  * 网络请求工具类
  */
 public class HttpUtil {
-
-    private static final String BASE_URL = "";
+    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String MODE = "mode";
     private static final String TOKEN = "token";
@@ -99,8 +100,8 @@ public class HttpUtil {
                 httppost.setHeader("token", token);
             }
             httppost.setHeader("Content-Type", "application/json;charset=UTF-8");
-            System.out.println("executing request " + httppost.getURI() + " uefEntity" + httppost.getEntity());
             CloseableHttpResponse response = httpclient.execute(httppost);
+            logger.info("请求基础服务：url:{},请求参数：{},返回结果：{}", url, token, response.getEntity());
             try {
                 HttpEntity entitys = response.getEntity();
                 if (entitys != null) {
@@ -126,17 +127,4 @@ public class HttpUtil {
         return null;
     }
 
-    // 请求返回body String
-    public static String doPostStr(String url, String token, String params) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);
-        addHeaders(httpPost, token);
-        httpPost.setEntity(new StringEntity(params, "UTF-8"));
-        CloseableHttpResponse response = httpClient.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-        String responseStr = EntityUtils.toString(entity, "UTF-8");
-        response.close();
-        httpClient.close();
-        return responseStr;
-    }
 }

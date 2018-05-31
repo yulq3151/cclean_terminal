@@ -9,8 +9,6 @@ import com.cclean.terminal.service.BrandService;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.Utils;
 import com.cclean.terminal.vo.PageVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +21,6 @@ import java.util.List;
  */
 @Service
 public class BrandServiceImpl implements BrandService{
-
-    private static Logger logger = LoggerFactory.getLogger(BrandServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -40,19 +36,15 @@ public class BrandServiceImpl implements BrandService{
         Result result = Result.success();
         try {
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
             PageVO pageVO = new PageVO();
             pageVO.setPageNum(Utils.pageNum);
             pageVO.setPageSize(Utils.pageSize);
             // 获取所有的品牌列表
             List<Brand> brandList = new ArrayList<>();
             String url = linenUrl + "/cloud/manage/v1/brand/page";
-            logger.info("brands cloudUrl is:{}" , url);
             String js = JSONArray.toJSONString(pageVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("品牌列表 Responses content: {}", httpEntitys);
-
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -78,7 +70,6 @@ public class BrandServiceImpl implements BrandService{
             result.setData(brandList);
             return result;
         }catch (Exception e){
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }

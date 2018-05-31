@@ -14,8 +14,6 @@ import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.util.Utils;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ import java.util.*;
  */
 @Service
 public class OrderServiceImpl implements OrderService {
-    private static Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -72,7 +69,6 @@ public class OrderServiceImpl implements OrderService {
         String js = JSONArray.toJSONString(idVO);
         JSONObject jsonParam = JSONArray.parseObject(js);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("订单详情：respose:{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -123,7 +119,6 @@ public class OrderServiceImpl implements OrderService {
         String url = cloudUrl + orderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("订单列表：respose:{}", data);
         List<Order> list = new ArrayList<>();
         JSONArray jsonArray = data.getJSONArray("list");
         if (jsonArray == null || jsonArray.size() == 0) {

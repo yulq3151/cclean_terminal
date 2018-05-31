@@ -8,8 +8,6 @@ import com.cclean.terminal.vo.HotelVO;
 import com.cclean.terminal.vo.PageVO;
 import com.cclean.terminal.vo.PointVO;
 import com.cclean.terminal.vo.RfidsVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +21,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/")
 public class CommonController extends BaseController {
-
-    private static Logger logger = LoggerFactory.getLogger(CommonController.class);
 
     @Autowired
     BrandService brandService;
@@ -101,8 +97,6 @@ public class CommonController extends BaseController {
     @ResponseBody
     public Result hotels(@RequestBody(required = false) HotelVO hotelVO, HttpServletRequest request) throws BusinessException {
         if (hotelVO == null) return Result.paramNull();
-        logger.info(" hotels hotelVO value is:" + hotelVO);
-
         return hotelService.hotels(getToken(request), hotelVO);
     }
 
@@ -118,8 +112,6 @@ public class CommonController extends BaseController {
     @ResponseBody
     public Result deliverypoints(@RequestBody(required = false) PointVO pointVO, HttpServletRequest request) throws BusinessException {
         if (pointVO == null) return Result.paramNull();
-        logger.info(" deliverypoints pointVO value is:" + pointVO);
-
         return hotelService.deliverypoints(getToken(request), pointVO);
 
     }
@@ -133,10 +125,8 @@ public class CommonController extends BaseController {
     // RequestBody的属性required，为true代表所有参数必填，为false非必填，参数由自己判断
     @RequestMapping(value = "/factorys", method = RequestMethod.POST)
     @ResponseBody
-    public Result factorys(@RequestBody(required = false) PageVO pageVO, HttpServletRequest request) {
+    public Result factorys(@RequestBody(required = false) PageVO pageVO, HttpServletRequest request) throws BusinessException {
         if (pageVO == null) return Result.paramNull();
-        logger.info(" factorys pointVO value is:" + pageVO);
-
         return factoryService.factorys(getToken(request), pageVO);
     }
 
@@ -152,8 +142,6 @@ public class CommonController extends BaseController {
     @ResponseBody
     public Result linens(@RequestBody(required = false) RfidsVO rfidsVO, HttpServletRequest request) throws BusinessException {
         if (rfidsVO == null) return Result.paramNull();
-        logger.info(" linens rfidsVO value is:" + rfidsVO);
-
         return linenService.linens(getToken(request), rfidsVO);
 
     }
@@ -170,8 +158,6 @@ public class CommonController extends BaseController {
     @ResponseBody
     public Result scrapreason(@RequestBody(required = false) PageVO pageVO, HttpServletRequest request) {
         if (pageVO == null) return Result.paramNull();
-        logger.info(" scrapreason pageVO value is:" + pageVO);
-
         return scrapService.scrapreason(getToken(request), pageVO);
     }
 

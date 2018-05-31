@@ -13,12 +13,9 @@ import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
 import com.cclean.terminal.util.StringUtils;
-import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.PageVO;
 import com.cclean.terminal.vo.RfidsVO;
 import com.cclean.terminal.vo.SkuVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +26,6 @@ import java.util.*;
  */
 @Service
 public class SkuServiceImpl implements SkuService {
-
-    private static Logger logger = LoggerFactory.getLogger(SkuServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -52,21 +47,17 @@ public class SkuServiceImpl implements SkuService {
         Result result = Result.success();
         try {
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
 
             SkuExtend skuExtend = new SkuExtend();
             List<String> rfids = rfidsVO.getRfids();
             String url = cloudUrl + "/linen/api/linen/statistic";
-            logger.info("linens cloudUrl is:{}", url);
             String js = JSONArray.toJSONString(rfidsVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("已登记的的sku：respose:{}", httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("url:{},retCode:{},retInfo:{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -98,16 +89,13 @@ public class SkuServiceImpl implements SkuService {
             skuExtend.setUnregisteredList(unregisteredList);
             skuExtend.setRegisteredList(registeredList);
             url = cloudUrl + "/linen/api/sku/statistic";
-            logger.info("linens cloudUrl is:{}", url);
             js = JSONArray.toJSONString(rfidsVO);
             jsonParam = JSONArray.parseObject(js);
             httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("根据rfids查询sku：respose:{}", httpEntitys);
             jsonObj = JSONObject.parseObject(httpEntitys);
             retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -127,18 +115,15 @@ public class SkuServiceImpl implements SkuService {
 
             //获取8个小时内已收脏数量
             url = cloudUrl + "/linen/api/linen/transferstate";
-            logger.info("linens cloudUrl is:{}", url);
             js = JSONArray.toJSONString(rfidsVO);
             jsonParam = JSONArray.parseObject(js);
             jsonParam.put("transferState", "1");
             jsonParam.put("timeNum", "8");
             httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("查询布草状态：respose:{}", httpEntitys);
             jsonObj = JSONObject.parseObject(httpEntitys);
             retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}", url, retCode, retInfo);
                 result.setCodeInfo(retCode, retInfo);
                 return result;
             }
@@ -149,7 +134,6 @@ public class SkuServiceImpl implements SkuService {
             result.setData(skuExtend);
             return result;
         } catch (Exception e) {
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }
@@ -183,7 +167,6 @@ public class SkuServiceImpl implements SkuService {
             jsonParam.remove("code");
             jsonParam.remove("codeType");
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("sku列表：respose:{}", httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -218,7 +201,6 @@ public class SkuServiceImpl implements SkuService {
             result.setData(page);
             return result;
         } catch (Exception e) {
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }
@@ -241,7 +223,6 @@ public class SkuServiceImpl implements SkuService {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", id);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("根据id查询sku：respose:{}", httpEntitys);
         JSONObject jsonResult = JSONObject.parseObject(httpEntitys);
         String retCode = jsonResult.getString("retCode");
         if (StringUtils.isNotEquals("00000", retCode)) {
@@ -340,7 +321,6 @@ public class SkuServiceImpl implements SkuService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("sku列表：respose:{}", httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {

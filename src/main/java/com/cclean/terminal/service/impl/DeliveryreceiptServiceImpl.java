@@ -14,8 +14,6 @@ import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.GenerateVO;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -28,9 +26,6 @@ import java.util.*;
  */
 @Service
 public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
-
-    private static Logger logger = LoggerFactory.getLogger(DeliveryreceiptServiceImpl.class);
-
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -81,7 +76,6 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         jsonParam.remove("skuStatisticss");
         jsonParam.remove("workOrderId");
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("生成配送单信息：{}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -133,7 +127,6 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         String js = JSONArray.toJSONString(idVO);
         JSONObject jsonParam = JSONArray.parseObject(js);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("配送单详情：{}" + httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -184,7 +177,6 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         String url = cloudUrl + deliveryorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单列表：{}", data);
         JSONArray jsonArray = data.getJSONArray("list");
         if (jsonArray == null || jsonArray.size() == 0) {
             return list;

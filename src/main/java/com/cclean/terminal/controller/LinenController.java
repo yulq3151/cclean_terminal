@@ -6,8 +6,6 @@ import com.cclean.terminal.model.LinenPack;
 import com.cclean.terminal.model.SkuInfoEntity;
 import com.cclean.terminal.service.LinenService;
 import com.cclean.terminal.vo.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +19,6 @@ import java.util.*;
 @RestController
 @RequestMapping("linen")
 public class LinenController extends BaseController {
-
-    private static Logger logger = LoggerFactory.getLogger(LinenController.class);
 
     @Autowired
     LinenService linenService;
@@ -117,7 +113,7 @@ public class LinenController extends BaseController {
     // RequestBody的属性required，为true代表所有参数必填，为false非必填，参数由自己判断
     @RequestMapping(value = "/pack", method = RequestMethod.POST)
     @ResponseBody
-    public Result pack(@RequestBody(required = false) RfidsVO rfidsVO, HttpServletRequest request) {
+    public Result pack(@RequestBody(required = false) RfidsVO rfidsVO, HttpServletRequest request) throws BusinessException {
         if (rfidsVO == null) return Result.paramNull();
         return linenService.pack(getToken(request), rfidsVO);
 
@@ -132,7 +128,7 @@ public class LinenController extends BaseController {
     // RequestBody的属性required，为true代表所有参数必填，为false非必填，参数由自己判断
     @RequestMapping(value = "/types", method = RequestMethod.POST)
     @ResponseBody
-    public Result types(HttpServletRequest request) {
+    public Result types(HttpServletRequest request) throws BusinessException {
 
         return linenService.types(getToken(request));
     }

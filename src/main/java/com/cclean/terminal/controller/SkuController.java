@@ -7,8 +7,6 @@ import com.cclean.terminal.exception.BusinessException;
 import com.cclean.terminal.service.SkuService;
 import com.cclean.terminal.vo.RfidsVO;
 import com.cclean.terminal.vo.SkuVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +21,6 @@ import java.util.Map;
 @RequestMapping("sku")
 public class SkuController extends BaseController {
 
-    private static Logger logger = LoggerFactory.getLogger(SkuController.class);
 
     @Autowired
     SkuService skuService;
@@ -33,8 +30,6 @@ public class SkuController extends BaseController {
     @ResponseBody
     public Result statistics(@RequestBody(required = false) RfidsVO rfidsVO,HttpServletRequest request) throws BusinessException {
             if (rfidsVO == null) return Result.paramNull();
-            logger.info(" statistics rfidsVO value is:" + rfidsVO);
-
             return skuService.statistics(getToken(request),rfidsVO);
     }
 
@@ -43,7 +38,6 @@ public class SkuController extends BaseController {
     @ResponseBody
     public Result search(@RequestBody(required = false) SkuVO skuVO,HttpServletRequest request) {
         if (skuVO == null) return Result.paramNull();
-        logger.info(" search skuVO value is:" + skuVO);
             return  skuService.page(getToken(request),skuVO);
     }
 

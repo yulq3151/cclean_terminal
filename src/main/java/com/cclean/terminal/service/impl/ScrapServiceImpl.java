@@ -9,8 +9,6 @@ import com.cclean.terminal.model.ScrapReason;
 import com.cclean.terminal.service.ScrapService;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.vo.PageVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +21,6 @@ import java.util.List;
  */
 @Service
 public class ScrapServiceImpl implements ScrapService {
-
-    private static Logger logger = LoggerFactory.getLogger(SkuServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -44,22 +40,18 @@ public class ScrapServiceImpl implements ScrapService {
             }
 
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}" , accessToken);
 
             // 报废原因列表
             List<ScrapReason> scrapReasonList =new ArrayList<>();
             String url = linenUrl+"/cloud/manage/v1/dictionary/page";
-            logger.info("scrapreason cloudUrl is:{}",url);
             String js = JSONArray.toJSONString(pageVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             jsonParam.put("type","scrapReason");
             String httpEntitys = HttpUtil.doPost(url,accessToken,jsonParam);
-            logger.info("报废信息：respose:{}",httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}",url,retCode,retInfo);
                 result.setCodeInfo(retCode,retInfo );
                 return result;
             }
@@ -83,7 +75,6 @@ public class ScrapServiceImpl implements ScrapService {
             result.setData(page);
             return result;
         }catch (Exception e){
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }
