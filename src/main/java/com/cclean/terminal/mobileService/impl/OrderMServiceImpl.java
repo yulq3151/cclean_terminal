@@ -344,6 +344,14 @@ public class OrderMServiceImpl implements OrderMService {
         //生成配送单成功后，改变打扎状态
         this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()),"1");
         DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
+        //调用接口推送消息
+        String urlmsg = serviceUrl+"/linen/cleanRfids";
+        JSONObject mparam = new JSONObject();
+        mparam.put("type",1);
+        mparam.put("orderId",deliveryOrder.getId());
+        mparam.put("hotelId",deliveryOrder.getHotelId());
+        mparam.put("pointId",deliveryOrder.getPointId());
+        HttpUtil.doPost(urlmsg, token,mparam);
         return deliveryOrder;
 
     }

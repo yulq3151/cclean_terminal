@@ -111,17 +111,17 @@ public class HttpUtil {
                 response.close();
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
+            logger.error(e.getMessage(),e);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(),e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         } finally {
             // 关闭连接,释放资源
             try {
                 httpclient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(),e);
             }
         }
         return null;

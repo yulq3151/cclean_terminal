@@ -60,7 +60,7 @@ public class UserController extends BaseController {
     // 转发测试
     @RequestMapping(value = "/relogin", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> reLogin(@RequestBody(required = false) LoginVO2 loginVO, HttpServletRequest request, HttpServletResponse response) throws BusinessException {
+    public Map<String, Object> reLogin(@RequestBody(required = false) LoginVO2 loginVO, HttpServletRequest request, HttpServletResponse response) throws BusinessException, IOException {
         // 转发
         String url = "http://localhost:8091/terminal/api/user/login";
         Map<String, Object> result = new HashMap<>();
@@ -71,23 +71,19 @@ public class UserController extends BaseController {
         params.put("loginName", params.get("username"));
         params.remove("username");
         System.out.println("参数" + params.toJSONString());
-        try {
-            CloseableHttpResponse httpResponse = HttpUtil.doPost(url, request, params.toJSONString());
-            if (httpResponse != null) {
-                Header[] headers = httpResponse.getAllHeaders();
-                for (Header header : headers) {
-                    if ("token".equals(header.getName())) {
-                        response.setHeader(header.getName(), header.getValue());
-                    }
+        CloseableHttpResponse httpResponse = HttpUtil.doPost(url, request, params.toJSONString());
+        if (httpResponse != null) {
+            Header[] headers = httpResponse.getAllHeaders();
+            for (Header header : headers) {
+                if ("token".equals(header.getName())) {
+                    response.setHeader(header.getName(), header.getValue());
                 }
-                HttpEntity entity = httpResponse.getEntity();
-                String json = EntityUtils.toString(entity, "UTF-8");
-                JSONObject jsonObject = JSONArray.parseObject(json);
-                result.putAll((Map) jsonObject);
-                System.out.println("转发" + json);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            HttpEntity entity = httpResponse.getEntity();
+            String json = EntityUtils.toString(entity, "UTF-8");
+            JSONObject jsonObject = JSONArray.parseObject(json);
+            result.putAll((Map) jsonObject);
+            System.out.println("转发" + json);
         }
         // 返回
         return result;
@@ -95,6 +91,7 @@ public class UserController extends BaseController {
 
     /**
      * 配货app 登录
+     *
      * @param request
      * @param loginVO
      * @param response
@@ -106,7 +103,7 @@ public class UserController extends BaseController {
     public Result Mobilelogin(HttpServletRequest request, @RequestBody(required = true) LoginVO loginVO, HttpServletResponse response) throws BusinessException {
         String account = loginVO.getLoginName();
         String pwd = loginVO.getPassword();
-        if (StringUtils.isEmpty(account) || StringUtils.isEmpty(pwd) ) {
+        if (StringUtils.isEmpty(account) || StringUtils.isEmpty(pwd)) {
             return new Result("00002", "用户名或密码为空");
         }
         //获取用户信息
@@ -115,20 +112,21 @@ public class UserController extends BaseController {
             return new Result("此用户不存在");
         }
         //若有权限则返回
-        response.setHeader("token",userInfo.getId());
+        response.setHeader("token", userInfo.getId());
 
         return new Result(userInfo);
     }
 
     /**
      * 配货app 登出
+     *
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/mobile/logout",method = RequestMethod.POST)
+    @RequestMapping(value = "/mobile/logout", method = RequestMethod.POST)
     @ResponseBody
-    public void MobileLogout(HttpServletRequest request,HttpServletResponse response){
-        response.setHeader("token","");
+    public void MobileLogout(HttpServletRequest request, HttpServletResponse response) {
+        response.setHeader("token", "");
     }
 
 }
