@@ -11,6 +11,7 @@ import com.cclean.terminal.model.Sku;
 import com.cclean.terminal.model2.*;
 import com.cclean.terminal.util.HttpUtil;
 import com.cclean.terminal.util.InvokeUtil;
+import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
 import com.cclean.terminal.vo.SkuSVo;
@@ -30,7 +31,7 @@ import java.util.*;
  **/
 @Service
 public class OrderMServiceImpl implements OrderMService {
-    private static Logger logger = LoggerFactory.getLogger(OrderMServiceImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(OrderMServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -40,6 +41,9 @@ public class OrderMServiceImpl implements OrderMService {
 
     @Value("${cloud.url}")
     private String cloudUrl;
+
+    @Value("${msg.url}")
+    private String msgUrl;
 
     @Value("${invoke.order.page}")
     private String orderPageUrl;
@@ -81,7 +85,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + orderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "order");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("订单列表 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -92,36 +95,19 @@ public class OrderMServiceImpl implements OrderMService {
         }
         Set<String> hotelSet = new HashSet<>();
         Set<String> pointSet = new HashSet<>();
-//        Set<String> skuSet = new HashSet<>();
-//        Set<String> userSet = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
             Order order = list.get(i);
             hotelSet.add(order.getHotelId());
             pointSet.add(order.getPointId());
-//            userSet.add(order.getOperator());
-//            OrderSku[] skus = order.getSkus();
-//            for (int j = 0; j < skus.length; j++) {
-//                skuSet.add(skus[j].getSkuId());
-//            }
         }
 
         Map<String, HotelBo> hotels = this.hotelMService.findHotelsByIds(hotelSet);
         Map<String, DeliveryPointM> points = this.conService.findPointsByIds(pointSet);
-//        Map<String, String> users = this.conService.findUsersByIds(userSet);
-//        Map<String, Sku> skus = this.conService.findSkusByIds(skuSet);
 
         for (int i = 0; i < list.size(); i++) {
             Order order = list.get(i);
             order.setHotel(hotels.get(order.getHotelId()));
             order.setDrypoint(points.get(order.getPointId()));
-//            order.setOperatorName(users.get(order.getOperator()));
-//            OrderSku[] skusta = order.getSkus();
-//            for (int j = 0; j < skusta.length; j++) {
-//                Sku sku = skus.get(skusta[j].getSkuId());
-//                skusta[j].setSkuName(sku.getName());
-//                skusta[j].setSizeValue(sku.getSizeValue());
-//            }
-
         }
         return new PageMo(list, orderVO.getPageNum(), orderVO.getPageSize(), total);
 
@@ -141,7 +127,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("订单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }
@@ -193,26 +178,10 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject parpam = new JSONObject();
         parpam.put("orderIds", orderIdsVO.getOrderIds());
         JSONObject data = InvokeUtil.invokeResult(url, token, parpam);
-        logger.info("订单生成任务单 Responses: {}", data);
         PickorderOrder pickorderOrder = JSONObject.parseObject(data.toJSONString(), PickorderOrder.class);
         if (pickorderOrder == null) {
             throw new BusinessException("00001", "生成任务单失败");
         }
-//        Map<String, Object> map = this.details(pickorderOrder.getHotelId(), pickorderOrder.getPointId(), token);
-//        pickorderOrder.setHotel((HotelBo) map.get("hotel"));
-//        pickorderOrder.setDrypoint((DeliveryPointM) map.get("point"));
-//        //统计任务单里sku应配数量
-//        Integer totalcon = 0;
-//        for (int j = 0; j < pickorderOrder.getSkus().length; j++) {
-//            PickOrderSku sku = pickorderOrder.getSkus()[j];
-//            Sku sku1 = this.skuService.findSkuById(token, new IdVO(sku.getSkuId()));
-//            if (sku1 != null) {
-//                sku.setSkuName(sku1.getName());
-//            }
-//            Integer count = sku.getExpectCount();
-//            totalcon += (count == null ? 0 : count);
-//        }
-//        pickorderOrder.setTotalCnt(totalcon);
         return pickorderOrder;
     }
 
@@ -230,7 +199,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + workorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单列表 Responses: {}", data);
         Integer total = data.getInteger("total");
         List<PickorderOrder> list = JSONArray.parseArray(data.getString("list"), PickorderOrder.class);
         if (list == null || list.size() == 0) {
@@ -269,7 +237,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }
@@ -308,7 +275,7 @@ public class OrderMServiceImpl implements OrderMService {
                 if (sku != null) {
                     orderSku.setSkuName(sku.getName());
                     //计算扎数
-                    int count = sku.getPackCnt() == null ? 1 : sku.getPackCnt(); //sku的标准捆扎数，最低单位为1
+                    int count = sku.getPackCnt() == 0 ? 1 : sku.getPackCnt(); //sku的标准捆扎数，最低单位为1
                     int exount = orderSku.getExpectCount() == null ? 0 : orderSku.getExpectCount(); //应配数量
                     if (exount == 0) {
                         orderSku.setZpick(0);
@@ -367,23 +334,31 @@ public class OrderMServiceImpl implements OrderMService {
         param.put("pickOrderId", zPickVo.getWorkOrderId());
         param.put("skus", list);
         param.put("rfids", rfids);
+        param.put("packages",zPickVo.getPackages());
 
         //请求生成配送单接口
         String post = HttpUtil.doPost(url, token, param);
         JSONObject obj = JSONObject.parseObject(post);
         String retCode = obj.getString("retCode");
         if (!"00000".equals(retCode)) {
-            if ("00103".equals(retCode)) {
+            if ("00203".equals(retCode)) {
                 throw new BusinessException("00001","有布草已配送");
             }
             throw new BusinessException(retCode,obj.getString("retInfo"));
         }
         String datajson = obj.getString("data");
-        logger.info("任务单生成配送单 Responses: {}", datajson);
-
         //生成配送单成功后，改变打扎状态
         this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()),"1");
         DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
+        //调用接口推送消息
+        logger.info("配送单消息推送开始：{}",System.currentTimeMillis());
+        JSONObject mparam = new JSONObject();
+        mparam.put("type",1);
+        mparam.put("orderId",deliveryOrder.getId());
+        mparam.put("hotelId",deliveryOrder.getHotelId());
+        mparam.put("pointId",deliveryOrder.getPointId());
+        HttpUtil.doPost(msgUrl, token,mparam);
+        logger.info("配送单消息推送结束：{}",System.currentTimeMillis());
         return deliveryOrder;
 
     }
@@ -402,7 +377,6 @@ public class OrderMServiceImpl implements OrderMService {
         orderVO.setUserId(token); //app使用者
         JSONObject param = InvokeUtil.jsonParam(orderVO, "delivery");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("我的配送单 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -450,7 +424,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + deliveryorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单列表 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -499,7 +472,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }
@@ -548,14 +520,25 @@ public class OrderMServiceImpl implements OrderMService {
      * 修改配送单的袋子
      * @param token
      * @param deliveryId
-     * @param codes
+     * @param packageCodes
      * @return
      */
     @Override
-    public boolean updateDeliveryOrder(String token,String deliveryId,List<String> codes){
-        String url = cloudUrl+"";
-
+    public boolean updateDeliveryOrderBag(String token, String deliveryId, List<String> packageCodes) throws BusinessException {
+        if (StringUtils.isBlank(deliveryId)) {
+            throw new BusinessException("00001","缺少参数：配送单ID");
+        }
+        List<JSONObject> list = new ArrayList<>();
+        for (int i = 0; i < packageCodes.size(); i++) {
+            JSONObject obj = new JSONObject();
+            obj.put("packageCode",packageCodes.get(i));
+            list.add(obj);
+        }
+        String url = cloudUrl+"/cloud/order/deliveryorder/update";
+        JSONObject param = new JSONObject();
+        param.put("id",deliveryId);
+        param.put("packages",list);
+        InvokeUtil.invokeString(url, token, param);
         return true;
-
     }
 }

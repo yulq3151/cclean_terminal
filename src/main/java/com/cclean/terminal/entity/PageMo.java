@@ -55,6 +55,7 @@ public class PageMo<E> implements Serializable {
 
 
     }
+
     public PageMo(List<E> list, int pageNum, int pageSize, int total) {
         Integer size = pageSize;
         this.total = total;

@@ -5,8 +5,8 @@ import java.util.List;
 
 public class PageInfo<T> implements Serializable {
 
-	private static final long serialVersionUID = -5133324823204904258L;
-	// 当前页
+    private static final long serialVersionUID = -5133324823204904258L;
+    // 当前页
     private int pageNum;
     // 每页的数量
     private int pageSize;

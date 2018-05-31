@@ -41,16 +41,17 @@ public class BodyFilter implements Filter {
         body = body.replaceAll("\r", "");
         body = body.replaceAll("\n", "");
         String requestUri = requestWrapper.getRequestURI();
-        logger.info("requestUri:{}" , requestUri);
-        logger.info("requestBody:{}" ,body);
+        String token = requestWrapper.getHeader("token");
+        logger.info("获取请求:request_Uri:{}" , requestUri);
+        logger.info("获取请求:request_token:{}", token);
+        logger.info("获取请求:request_Body:{}" ,body);
 
         if (requestUri.contains("/user/login") || requestUri.contains("user/logout")
                 ||requestUri.contains("/user/mobile/login") || requestUri.contains("version") ) {
             filterChain.doFilter(requestWrapper, response);
         } else {
             boolean flag = false;
-            String token = requestWrapper.getHeader("token");
-            if (StringUtils.isNotEmpty(token)) {
+            if (!StringUtils.isBlank(token)) {
                 flag = true;
             }
             if (flag) {
@@ -65,7 +66,7 @@ public class BodyFilter implements Filter {
                     String macAddress = requestWrapper.getHeader("macAddress");
                     String diskId = requestWrapper.getHeader("diskId");
                     String computerName = requestWrapper.getHeader("computerName");
-                    logger.info("requestHeader:cpuId:{},macAddress:{},diskId:{},computerName:{}",cpuId,macAddress,diskId,computerName);
+                    logger.info("request_Header:cpuId:{},macAddress:{},diskId:{},computerName:{}",cpuId,macAddress,diskId,computerName);
                     // 授权码
                     String authCode = requestWrapper.getHeader("authCode");
                     if (StringUtils.isEmpty(authCode)) authCode = "";

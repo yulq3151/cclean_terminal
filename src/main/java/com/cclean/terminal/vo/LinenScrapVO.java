@@ -8,9 +8,12 @@ import java.util.List;
 public class LinenScrapVO {
 
     private List<String> rfids;
-    private String responsiId;
+    //责任方类型：0酒店1工厂2供应商3物流4超洁
     private String responsibility;
-    private String scrapReason;
+    //责任方对应的ID
+    private String responsiId;
+    //报废原因ID
+    private String scrapReasonId;
 
     public List<String> getRfids() {
         return rfids;
@@ -36,12 +39,12 @@ public class LinenScrapVO {
         this.responsibility = responsibility;
     }
 
-    public String getScrapReason() {
-        return scrapReason;
+    public String getScrapReasonId() {
+        return scrapReasonId;
     }
 
-    public void setScrapReason(String scrapReason) {
-        this.scrapReason = scrapReason;
+    public void setScrapReasonId(String scrapReasonId) {
+        this.scrapReasonId = scrapReasonId;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class LinenScrapVO {
                 "rfids=" + rfids +
                 ", responsiId='" + responsiId + '\'' +
                 ", responsibility='" + responsibility + '\'' +
-                ", scrapReason='" + scrapReason + '\'' +
+                ", scrapReasonId='" + scrapReasonId + '\'' +
                 '}';
     }
 }

@@ -16,6 +16,8 @@ public class LinenPackM implements Serializable {
     private String code;
     //sku
     private String skuId;
+    //sku名称
+    private String skuName;
     //数量
     private Integer count;
     //状态 0正常1删除
@@ -41,6 +43,14 @@ public class LinenPackM implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSkuName() {
+        return skuName;
+    }
+
+    public void setSkuName(String skuName) {
+        this.skuName = skuName;
     }
 
     public String getCode() {

@@ -9,17 +9,11 @@ import com.cclean.terminal.model.Property;
 import com.cclean.terminal.model2.VersionInfo;
 import com.cclean.terminal.service.PropertyService;
 import com.cclean.terminal.util.HttpUtil;
-import com.cclean.terminal.util.StringUtils;
-import com.cclean.terminal.util.TestUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by hubin on 2018/3/23.
@@ -27,9 +21,6 @@ import java.util.Map;
  */
 @Service
 public class PropertyServiceImpl implements PropertyService{
-
-    private static Logger logger = LoggerFactory.getLogger(PropertyServiceImpl.class);
-
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -45,19 +36,15 @@ public class PropertyServiceImpl implements PropertyService{
         Result result = Result.success();
         try{
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}" , accessToken);
             // 产权所有者列表
             List<Property> propertyList = new ArrayList<>();
             String url = cloudUrl+"/cloud/basic/property/list";
-            logger.info("propertyList cloudUrl is:{}",url);
             JSONObject jsonParam = new JSONObject();
             String httpEntitys = HttpUtil.doPost(url,accessToken,jsonParam);
-            logger.info("产权：respose:{}",httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
                 String retInfo = jsonObj.getString("retInfo");
-                logger.error("{}{}{}",url,retCode,retInfo);
                 result.setCodeInfo(retCode,retInfo );
                 return result;
             }
@@ -78,7 +65,6 @@ public class PropertyServiceImpl implements PropertyService{
             result.setData(propertyList);
             return result;
         }catch (Exception e){
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }
@@ -96,7 +82,6 @@ public class PropertyServiceImpl implements PropertyService{
         jsonObj.put("versionType","4"); // 1、酒店APP 2、物流APP 3.配货APP 4.终端
         String url = cloudUrl+"/cloud/basic/version/latest";
         String httpEntitys = HttpUtil.doPost(url, "", jsonObj);
-        logger.info("版本更新：respose:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {

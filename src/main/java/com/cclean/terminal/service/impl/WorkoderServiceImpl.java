@@ -14,8 +14,6 @@ import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,6 @@ import java.util.*;
  */
 @Service
 public class WorkoderServiceImpl implements WorkoderService {
-    private static Logger logger = LoggerFactory.getLogger(WorkoderServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -69,7 +66,6 @@ public class WorkoderServiceImpl implements WorkoderService {
         String url = linenUrl + orderTOWork;
         String js = JSONArray.toJSONString(orderIdsVO);
         String httpEntitys = HttpUtil.doPost(url, accessToken, JSONArray.parseObject(js));
-        logger.info("生成任务单 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -99,7 +95,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = data.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        if (list!=null) {
+        if (list != null) {
             Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
         }
         workOrder.setSkuStatisticss(list);
@@ -123,7 +119,6 @@ public class WorkoderServiceImpl implements WorkoderService {
         String js = JSONArray.toJSONString(idVO);
         JSONObject jsonParam = JSONArray.parseObject(js);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("任务单详情 Responses: {}", httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -153,7 +148,7 @@ public class WorkoderServiceImpl implements WorkoderService {
         JSONArray skuListJson = dataJson.getJSONArray("skus");
         Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
-        if (list!=null) {
+        if (list != null) {
             Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
         }
         workOrder.setSkuStatisticss(list);
@@ -175,7 +170,6 @@ public class WorkoderServiceImpl implements WorkoderService {
         String url = cloudUrl + workorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单列表 Responses: {}", data);
         JSONArray jsonArray = data.getJSONArray("list");
         if (jsonArray == null || jsonArray.size() == 0) {
             return list;

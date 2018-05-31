@@ -7,7 +7,6 @@ import com.cclean.terminal.service.DeliveryreceiptService;
 import com.cclean.terminal.vo.GenerateVO;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
-import com.cclean.terminal.vo.PageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

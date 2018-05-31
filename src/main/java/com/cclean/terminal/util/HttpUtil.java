@@ -10,6 +10,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -19,8 +21,7 @@ import java.io.UnsupportedEncodingException;
  * 网络请求工具类
  */
 public class HttpUtil {
-
-    private static final String BASE_URL = "";
+    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String MODE = "mode";
     private static final String TOKEN = "token";
@@ -82,6 +83,7 @@ public class HttpUtil {
         if (url == null) {
             return null;
         }
+        logger.info("请求基础服务开始：{} -url:{},请求token：{},请求参数：{}", System.currentTimeMillis(),url, token, jsonParam);
         // 创建默认的httpClient实例.
         CloseableHttpClient httpclient = HttpClients.createDefault();
         // 创建httppost
@@ -99,44 +101,32 @@ public class HttpUtil {
                 httppost.setHeader("token", token);
             }
             httppost.setHeader("Content-Type", "application/json;charset=UTF-8");
-            System.out.println("executing request " + httppost.getURI() + " uefEntity" + httppost.getEntity());
             CloseableHttpResponse response = httpclient.execute(httppost);
             try {
                 HttpEntity entitys = response.getEntity();
                 if (entitys != null) {
-                    return EntityUtils.toString(entitys, "UTF-8");
+                    String msg = EntityUtils.toString(entitys, "UTF-8");
+                    logger.info("请求基础服务结束：{},-返回结果：{}", System.currentTimeMillis(),msg);
+                    return msg;
                 }
             } finally {
                 response.close();
             }
         } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
+            logger.error(e.getMessage(),e);
+        } catch (UnsupportedEncodingException e) {
+            logger.error(e.getMessage(),e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(),e);
         } finally {
             // 关闭连接,释放资源
             try {
                 httpclient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getMessage(),e);
             }
         }
         return null;
     }
 
-    // 请求返回body String
-    public static String doPostStr(String url, String token, String params) throws IOException {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);
-        addHeaders(httpPost, token);
-        httpPost.setEntity(new StringEntity(params, "UTF-8"));
-        CloseableHttpResponse response = httpClient.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-        String responseStr = EntityUtils.toString(entity, "UTF-8");
-        response.close();
-        httpClient.close();
-        return responseStr;
-    }
 }

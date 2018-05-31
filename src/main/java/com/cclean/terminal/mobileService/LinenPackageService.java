@@ -2,10 +2,7 @@ package com.cclean.terminal.mobileService;
 
 import com.cclean.terminal.entity.PageMo;
 import com.cclean.terminal.exception.BusinessException;
-import com.cclean.terminal.model2.LinenPackage;
-import com.cclean.terminal.model2.LinenPackageRecord;
-import com.cclean.terminal.model2.LinenPackageStacount;
-import com.cclean.terminal.model2.LinenPackageStatistics;
+import com.cclean.terminal.model2.*;
 import com.cclean.terminal.vo.LinenPackageVO;
 
 import java.util.List;
@@ -32,4 +29,10 @@ public interface LinenPackageService {
     List<LinenPackageStatistics> fineReport(String token, String userId, int beginNum, int endNum) throws BusinessException;
 
     LinenPackageStacount dirtyReport(String token, String userId, int beginNum, int endNum) throws BusinessException;
+
+    LinenPackageKZ packageKZ(String token, List<String> codes) throws BusinessException;
+
+    LinenPackageKZ findPackageKZ(String token, String packageKZ) throws BusinessException;
+
+    boolean borrow(String token, String userId, List<String> codes) throws BusinessException;
 }
