@@ -288,6 +288,7 @@ public class OrderServiceImpl implements OrderService {
                     count += total;
                 }
             }
+            Collections.sort(skulist,Comparator.comparing(o->o.getSku().getName()));
             order.setSkuStatisticss(skulist);
             order.setSkuStatisTotal(count);
             list.add(order);
