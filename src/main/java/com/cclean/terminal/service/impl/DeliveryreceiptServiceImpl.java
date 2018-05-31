@@ -86,6 +86,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
+            if ("00203".equals(retCode)) {
+                throw new BusinessException("00001","有布草已配送");
+            }
             throw new BusinessException(retCode, jsonObj.getString("retInfo"));
         }
         JSONObject dataJson = jsonObj.getJSONObject("data");
