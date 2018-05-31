@@ -132,6 +132,8 @@ public class HotelMServiceImpl implements HotelMService {
         String url = linenUrl + deliveryPointsUrl;
         JSONObject param = new JSONObject();
         param.put("hotelId", hotelId);
+        param.put("pageNum", 1);
+        param.put("pageSize", 60);
         String httpEntitys = HttpUtil.doPost(url, token, param);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");

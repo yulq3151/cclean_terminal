@@ -83,6 +83,7 @@ public class HttpUtil {
         if (url == null) {
             return null;
         }
+        logger.info("请求基础服务开始：{} -url:{},请求token：{},请求参数：{}", System.currentTimeMillis(),url, token, jsonParam);
         // 创建默认的httpClient实例.
         CloseableHttpClient httpclient = HttpClients.createDefault();
         // 创建httppost
@@ -105,7 +106,7 @@ public class HttpUtil {
                 HttpEntity entitys = response.getEntity();
                 if (entitys != null) {
                     String msg = EntityUtils.toString(entitys, "UTF-8");
-                    logger.info("请求基础服务：url:{},请求token：{},返回结果：{}", url, token, msg);
+                    logger.info("请求基础服务结束：{},-返回结果：{}", System.currentTimeMillis(),msg);
                     return msg;
                 }
             } finally {
