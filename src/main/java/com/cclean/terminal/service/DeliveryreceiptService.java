@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface DeliveryreceiptService {
 
-    DeliveryReceipt generate(String accessToken, GenerateVO generateVO) throws BusinessException;
+    DeliveryReceipt generate(String token, GenerateVO generateVO) throws BusinessException;
 
     DeliveryReceipt info(String accessToken, IdVO idVO) throws BusinessException;
 

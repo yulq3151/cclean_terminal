@@ -16,8 +16,6 @@ import com.cclean.terminal.vo.OrderIdsVO;
 import com.cclean.terminal.vo.OrderVO;
 import com.cclean.terminal.vo.SkuSVo;
 import com.cclean.terminal.vo.ZPickVo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +29,6 @@ import java.util.*;
  **/
 @Service
 public class OrderMServiceImpl implements OrderMService {
-    private static Logger logger = LoggerFactory.getLogger(OrderMServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -82,7 +79,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + orderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "order");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("订单列表 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -125,7 +121,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("订单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }
@@ -177,7 +172,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject parpam = new JSONObject();
         parpam.put("orderIds", orderIdsVO.getOrderIds());
         JSONObject data = InvokeUtil.invokeResult(url, token, parpam);
-        logger.info("订单生成任务单 Responses: {}", data);
         PickorderOrder pickorderOrder = JSONObject.parseObject(data.toJSONString(), PickorderOrder.class);
         if (pickorderOrder == null) {
             throw new BusinessException("00001", "生成任务单失败");
@@ -199,7 +193,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + workorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单列表 Responses: {}", data);
         Integer total = data.getInteger("total");
         List<PickorderOrder> list = JSONArray.parseArray(data.getString("list"), PickorderOrder.class);
         if (list == null || list.size() == 0) {
@@ -238,7 +231,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("任务单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }
@@ -277,7 +269,7 @@ public class OrderMServiceImpl implements OrderMService {
                 if (sku != null) {
                     orderSku.setSkuName(sku.getName());
                     //计算扎数
-                    int count = sku.getPackCnt() == null ? 1 : sku.getPackCnt(); //sku的标准捆扎数，最低单位为1
+                    int count = sku.getPackCnt() == 0 ? 1 : sku.getPackCnt(); //sku的标准捆扎数，最低单位为1
                     int exount = orderSku.getExpectCount() == null ? 0 : orderSku.getExpectCount(); //应配数量
                     if (exount == 0) {
                         orderSku.setZpick(0);
@@ -343,17 +335,23 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject obj = JSONObject.parseObject(post);
         String retCode = obj.getString("retCode");
         if (!"00000".equals(retCode)) {
-            if ("00103".equals(retCode)) {
+            if ("00203".equals(retCode)) {
                 throw new BusinessException("00001","有布草已配送");
             }
             throw new BusinessException(retCode,obj.getString("retInfo"));
         }
         String datajson = obj.getString("data");
-        logger.info("任务单生成配送单 Responses: {}", datajson);
-
         //生成配送单成功后，改变打扎状态
         this.conService.updatepack(token,Arrays.asList(zPickVo.getPackids()),"1");
         DeliveryOrder deliveryOrder = JSONObject.parseObject(datajson, DeliveryOrder.class);
+        //调用接口推送消息
+        String urlmsg = serviceUrl+"/linen/cleanRfids";
+        JSONObject mparam = new JSONObject();
+        mparam.put("type",1);
+        mparam.put("orderId",deliveryOrder.getId());
+        mparam.put("hotelId",deliveryOrder.getHotelId());
+        mparam.put("pointId",deliveryOrder.getPointId());
+        HttpUtil.doPost(urlmsg, token,mparam);
         return deliveryOrder;
 
     }
@@ -372,7 +370,6 @@ public class OrderMServiceImpl implements OrderMService {
         orderVO.setUserId(token); //app使用者
         JSONObject param = InvokeUtil.jsonParam(orderVO, "delivery");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("我的配送单 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -420,7 +417,6 @@ public class OrderMServiceImpl implements OrderMService {
         String url = cloudUrl + deliveryorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单列表 Responses: {}", data);
         if (data == null) {
             return new PageMo();
         }
@@ -469,7 +465,6 @@ public class OrderMServiceImpl implements OrderMService {
         JSONObject param = new JSONObject();
         param.put("id", id);
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单详情 Responses: {}", data);
         if (data == null) {
             return null;
         }

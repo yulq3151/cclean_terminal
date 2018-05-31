@@ -14,8 +14,6 @@ import com.cclean.terminal.util.StringUtils;
 import com.cclean.terminal.vo.GenerateVO;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.OrderVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,9 +27,6 @@ import java.util.*;
 @Service
 public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
 
-    private static Logger logger = LoggerFactory.getLogger(DeliveryreceiptServiceImpl.class);
-
-
     @Value("${linen.url}")
     private String linenUrl;
 
@@ -40,6 +35,9 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
 
     @Value("${cloud.url}")
     private String cloudUrl;
+
+    @Value("${msg.url}")
+    private String msgUrl;
 
     @Value("${invoke.deliveryorder.page}")
     private String deliveryorderPageUrl;
@@ -60,13 +58,13 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
     /**
      * 任务单生成配送单
      *
-     * @param accessToken
+     * @param token
      * @param generateVO
      * @return
      * @throws BusinessException
      */
     @Override
-    public DeliveryReceipt generate(String accessToken, GenerateVO generateVO) throws BusinessException {
+    public DeliveryReceipt generate(String token, GenerateVO generateVO) throws BusinessException {
         DeliveryReceipt deliveryReceipt = new DeliveryReceipt();
         String url = linenUrl + "/server/order/deliveryorder/generate";
         for (int i = 0; i < generateVO.getSkuStatisticss().size(); i++) {
@@ -80,8 +78,7 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         jsonParam.put("pickOrderId", jsonParam.getString("workOrderId"));
         jsonParam.remove("skuStatisticss");
         jsonParam.remove("workOrderId");
-        String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("生成配送单信息：{}", httpEntitys);
+        String httpEntitys = HttpUtil.doPost(url, token, jsonParam);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -92,7 +89,8 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
             return deliveryReceipt;
         }
 
-        deliveryReceipt.setId(dataJson.getString("id"));
+        String id = dataJson.getString("id");
+        deliveryReceipt.setId(id);
         deliveryReceipt.setState(dataJson.getInteger("state") == 50 ? 1 : dataJson.getInteger("state"));
         String uid = dataJson.getString("operator");
         deliveryReceipt.setOperator(uid);
@@ -101,20 +99,32 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         deliveryReceipt.setModifyTime(dataJson.getDate("modifyTime"));
         Set<String> uids = new HashSet<>();
         uids.add(uid);
-        Map<String, String> users = this.userService.findUsersByIds(uids, accessToken);
+        Map<String, String> users = this.userService.findUsersByIds(uids, token);
         deliveryReceipt.setOperatorName(users.get(uid));
-        Hotel hotel = this.hotelService.findHotelById(accessToken, new IdVO(dataJson.getString("hotelId")));
+        String hotelId = dataJson.getString("hotelId");
+        Hotel hotel = this.hotelService.findHotelById(token, new IdVO(hotelId));
         deliveryReceipt.setHotel(hotel);
-        DeliveryPoint point = this.hotelService.findPointById(accessToken, new IdVO(dataJson.getString("pointId")));
+        String pointId = dataJson.getString("pointId");
+        DeliveryPoint point = this.hotelService.findPointById(token, new IdVO(pointId));
         deliveryReceipt.setDeliveryPoint(point);
         JSONArray skuListJson = dataJson.getJSONArray("skus");
-        Map<String, Object> map = this.skuService.stringToBean(skuListJson, accessToken);
+        Map<String, Object> map = this.skuService.stringToBean(skuListJson, token);
         List<SkuStatistics> list = (List<SkuStatistics>) map.get("skuStatisticsList");
         if (list!=null) {
             Collections.sort(list, Comparator.comparing(o -> o.getSku().getName()));
         }
         deliveryReceipt.setSkuStatisticss(list);
         deliveryReceipt.setSkuStatisTotal((Integer) map.get("total"));
+
+        //调用接口推送消息
+        String urlmsg = serviceUrl+"/linen/cleanRfids";
+        JSONObject param = new JSONObject();
+        param.put("type",1);
+        param.put("orderId",id);
+        param.put("hotelId",hotelId);
+        param.put("pointId",pointId);
+        HttpUtil.doPost(urlmsg, token,param);
+
         return deliveryReceipt;
     }
 
@@ -133,7 +143,6 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         String js = JSONArray.toJSONString(idVO);
         JSONObject jsonParam = JSONArray.parseObject(js);
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("配送单详情：{}" + httpEntitys);
         JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObj.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -184,7 +193,6 @@ public class DeliveryreceiptServiceImpl implements DeliveryreceiptService {
         String url = cloudUrl + deliveryorderPageUrl;
         JSONObject param = InvokeUtil.jsonParam(orderVO, "");
         JSONObject data = InvokeUtil.invokeResult(url, token, param);
-        logger.info("配送单列表：{}", data);
         JSONArray jsonArray = data.getJSONArray("list");
         if (jsonArray == null || jsonArray.size() == 0) {
             return list;

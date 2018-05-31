@@ -17,8 +17,6 @@ import com.cclean.terminal.vo.HotelVO;
 import com.cclean.terminal.vo.IdVO;
 import com.cclean.terminal.vo.PageVO;
 import com.cclean.terminal.vo.PointVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,8 +29,6 @@ import java.util.*;
  */
 @Service
 public class HotelServiceImpl implements HotelService {
-
-    private static Logger logger = LoggerFactory.getLogger(HotelServiceImpl.class);
 
     @Value("${linen.url}")
     private String linenUrl;
@@ -74,12 +70,10 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public Result hotels(String accessToken, HotelVO hotelVO) throws BusinessException {
         Result result = Result.success();
-        try {
             if (hotelVO.getPageNum() == null && hotelVO.getPageSize() == null) {
                 result.setCodeInfo("00001", "分页参数必填");
             }
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
             List<String> factoryIds = powerUtils.getFactoryIds(accessToken);
             if (factoryIds == null || factoryIds.size() <= 0) {
                 result.setCodeInfo(Constant.RET_CODE_DEBUG, "权限不足");
@@ -91,7 +85,6 @@ public class HotelServiceImpl implements HotelService {
             String js = JSONArray.toJSONString(hotelVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("酒店列表:{}",httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -120,11 +113,6 @@ public class HotelServiceImpl implements HotelService {
                     dataJson.getInteger("total"));
             result.setData(page);
             return result;
-        } catch (Exception e) {
-            logger.error(Constant.RET_CODE_DEBUG, e);
-            result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
-            return result;
-        }
     }
 
     /**
@@ -140,7 +128,6 @@ public class HotelServiceImpl implements HotelService {
         Result result = Result.success();
         try {
             if (accessToken == null) return Result.paramNull();
-            logger.info("accessToken value is:{}", accessToken);
             if (pointVO.getPageNum() == null || pointVO.getPageSize() == null) {
                 result.setCodeInfo("00001", "分页参数必填");
                 return result;
@@ -151,11 +138,9 @@ public class HotelServiceImpl implements HotelService {
             }
             List<DeliveryPoint> deliveryPointList = new ArrayList<>();
             String url = linenUrl + "/cloud/manage/v1/deliveryPoint/page";
-            logger.info("deliveryPoints cloudUrl is:{}" , url);
             String js = JSONArray.toJSONString(pointVO);
             JSONObject jsonParam = JSONArray.parseObject(js);
             String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-            logger.info("酒店下的配送点:{}",httpEntitys);
             JSONObject jsonObj = JSONObject.parseObject(httpEntitys);
             String retCode = jsonObj.getString("retCode");
             if (!retCode.equals(Constant.RET_CODE_SUCCESS)) {
@@ -198,7 +183,6 @@ public class HotelServiceImpl implements HotelService {
             result.setData(page);
             return result;
         } catch (Exception e) {
-            logger.error(Constant.RET_CODE_DEBUG, e);
             result.setCodeInfo(Constant.RET_CODE_DEBUG, e.getMessage());
             return result;
         }
@@ -222,7 +206,6 @@ public class HotelServiceImpl implements HotelService {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", idVO.getId());
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("酒店详情:{}",httpEntitys);
         JSONObject jsonResult = JSONObject.parseObject(httpEntitys);
         String retCode = jsonResult.getString("retCode");
         if (StringUtils.isNotEquals("00000", retCode)) {
@@ -257,7 +240,6 @@ public class HotelServiceImpl implements HotelService {
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("id", idVO.getId());
         String httpEntitys = HttpUtil.doPost(url, accessToken, jsonParam);
-        logger.info("配送点详情:{}",httpEntitys);
         JSONObject jsonResult = JSONObject.parseObject(httpEntitys);
         String retCode = jsonResult.getString("retCode");
         if (StringUtils.isNotEquals("00000", retCode)) {
@@ -285,7 +267,6 @@ public class HotelServiceImpl implements HotelService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("配送点列表:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
@@ -319,7 +300,6 @@ public class HotelServiceImpl implements HotelService {
         JSONObject param = new JSONObject();
         param.put("ids", ids);
         String httpEntitys = HttpUtil.doPost(url, "", param);
-        logger.info("酒店列表:{}",httpEntitys);
         JSONObject jsonObject1 = JSONObject.parseObject(httpEntitys);
         String retCode = jsonObject1.getString("retCode");
         if (!"00000".equals(retCode)) {
