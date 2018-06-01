@@ -239,7 +239,7 @@ public class OrderServiceImpl implements OrderService {
                     JSONObject sku = skus.get(j);
                     String skuId = sku.getString("skuId");
                     if (UNKNOWSKU.equals(skuId)) {
-                        break;
+                        continue;
                     }
                     sids.add(skuId);
                 }
@@ -278,7 +278,7 @@ public class OrderServiceImpl implements OrderService {
                     JSONObject sku = skuobj.get(j);
                     String skuId = sku.getString("skuId");
                     if (UNKNOWSKU.equals(skuId)) {
-                        break;
+                        continue;
                     }
                     Integer total = sku.getInteger("total");
                     SkuStatistics skusta = new SkuStatistics();
