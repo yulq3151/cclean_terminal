@@ -490,16 +490,22 @@ public class LinenServiceImpl implements LinenService {
         String url = linenUrl + "/cloud/manage/v1/dictionary/page";
         JSONObject jsonParam = new JSONObject();
         jsonParam.put("type", "skuType");
-        JSONObject data = InvokeUtil.invokeResult(url, accessToken, jsonParam);
-        if (data == null) {
-            return Result.objNull();
+        String respose = HttpUtil.doPost(url, accessToken, jsonParam);
+        JSONObject object = JSONObject.parseObject(respose);
+        String retCode = object.getString("retCode");
+        if (!"00000".equals(retCode)) {
+            throw new BusinessException(retCode,object.getString("retInfo"));
         }
-        List<JSONObject> typesJson = JSONArray.parseArray(data.getString("list"), JSONObject.class);
+        JSONObject list = object.getJSONObject("list");
+        if (list== null) {
+            return new Result(linenTypeList);
+        }
+        List<JSONObject> typesJson = JSONArray.parseArray(list.getString("list"), JSONObject.class);
 
         if (typesJson != null && typesJson.size() > 0) {
             for (int n = 0, m = typesJson.size(); n < m; n++) {
                 JSONObject typeJson = typesJson.get(n);
-                if (typeJson == null) return Result.objNull();
+                if (typeJson == null) return new Result(linenTypeList);
                 LinenType linenType = new LinenType();
                 linenType.setId(typeJson.getString("id"));
                 linenType.setName(typeJson.getString("value"));
