@@ -210,7 +210,7 @@ public class SkuServiceImpl implements SkuService {
      * 查询sku详情
      *
      * @param accessToken 授权码
-     * @param id        参数（id）
+     * @param id          参数（id）
      * @return
      * @throws BusinessException
      */
@@ -336,15 +336,13 @@ public class SkuServiceImpl implements SkuService {
     }
 
 
-
-
     /**
      * 根据rfids 查询每个布草的信息
      *
      * @param token
      * @param rfids
      * @param scanTime
-     * @return  rfid,skuid,skuname,skusize
+     * @return rfid, skuid, skuname, skusize
      */
     @Override
     public List<Map<String, String>> findSkuByRfid(String token, List<String> rfids, String scanTime) throws BusinessException {
@@ -365,14 +363,30 @@ public class SkuServiceImpl implements SkuService {
                 JSONObject object = array.get(i);
                 String skuId = object.getString("skuId");
                 String rfidId = object.getString("rfidId");
-                String transferState = object.getString("transferState");
+                int transferState = object.getIntValue("transferState");
                 skuids.add(skuId);
                 rfides.add(rfidId);
                 Map<String, String> map = new HashMap<>();
                 map.put("rfid", rfidId);
-                map.put("scanTime",scanTime);
-                map.put("status",transferState);
+                map.put("scanTime", scanTime);
                 map.put("skuId", skuId);
+                //获取布草最后修改时间
+                Date date = object.getDate("modifyTime");
+                long time = date.getTime();
+                long now = new Date().getTime();
+                int state = transferState;
+                switch (transferState) {
+                    case 1:
+                        state = (now - time) > (1000 * 60 * 60 * 8) ? 0 : 1;
+                        break;
+                    case 2:
+                        state = (now - time) > (1000 * 60 * 60 * 8) ? 0 : 2;
+                        break;
+                    case 3:
+                        state = (now - time) > (1000 * 60 * 60 * 24) ? 0 : 1;
+                        break;
+                }
+                map.put("status", Integer.toString(state));
                 list.add(map);
             }
             if (skuids.size() > 0) {
@@ -382,7 +396,7 @@ public class SkuServiceImpl implements SkuService {
                     String skuId = map.get("skuId");
                     Sku sku = skus.get(skuId);
                     map.put("skuName", sku.getName());
-                    map.put("skuCode",sku.getCode());
+                    map.put("skuCode", sku.getCode());
                 }
             }
             //去除已登记的
@@ -390,9 +404,9 @@ public class SkuServiceImpl implements SkuService {
         }
         if (set.size() > 0) {
             for (String rfid : set) {
-                Map<String,String> map = new HashMap<>();
-                map.put("rfid",rfid);
-                map.put("status","-1");
+                Map<String, String> map = new HashMap<>();
+                map.put("rfid", rfid);
+                map.put("status", "-1");
                 list.add(map);
             }
         }

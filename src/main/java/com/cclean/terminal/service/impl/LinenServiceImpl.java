@@ -407,16 +407,15 @@ public class LinenServiceImpl implements LinenService {
     @Override
     public Result pack(String accessToken, RfidsVO rfidsVO) throws BusinessException {
         Result result = Result.success();
-        if (accessToken == null) return Result.paramNull();
-        String url = cloudUrl + "/linen/api/linen/transferstate";
-        JSONObject param = new JSONObject();
-        param.put("transferState", 2);
-        param.put("timeNum", 24);
         List<String> rfids = rfidsVO.getRfids();
         if (rfids == null) {
             throw new BusinessException("00001", "请传入rfids");
         }
         Set<String> rfidset = new HashSet<>(rfids);
+        String url = cloudUrl + "/linen/api/linen/transferstate";
+        JSONObject param = new JSONObject();
+        param.put("transferState", 2);
+        param.put("timeNum", 8);
         param.put("rfids", rfidset);
         String json = HttpUtil.doPost(url, accessToken, param);
         JSONObject jsonObj = JSON.parseObject(json);
