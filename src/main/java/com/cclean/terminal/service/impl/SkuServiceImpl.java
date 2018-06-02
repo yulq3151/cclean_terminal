@@ -383,7 +383,7 @@ public class SkuServiceImpl implements SkuService {
                         state = (now - time) > (1000 * 60 * 60 * 8) ? 0 : 2;
                         break;
                     case 3:
-                        state = (now - time) > (1000 * 60 * 60 * 24) ? 0 : 1;
+                        state = (now - time) > (1000 * 60 * 60 * 24) ? 0 : 3;
                         break;
                 }
                 map.put("status", Integer.toString(state));
