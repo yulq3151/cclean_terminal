@@ -362,10 +362,23 @@ public class LinenPackageServiceImpl implements LinenPackageService {
         if (StringUtils.isBlank(userId)) {
             throw new BusinessException("00001", "请指明使用人");
         }
-        String url = cloudUrl + "/cagecar/api/package/batchUpdate";
+        String url = cloudUrl + "/cagecar/api/package/itemList";
         JSONObject param = new JSONObject();
+        Set<String> set = new HashSet<>();
+        for (int i = 0; i < packageKZS.size(); i++) {
+            param.put("linenPackagePackId", packageKZS.get(i));
+            String data = InvokeUtil.invokeString(url, token, param);
+            List<JSONObject> array = JSONArray.parseArray(data, JSONObject.class);
+            for (int j = 0; j < array.size(); j++) {
+                JSONObject object = array.get(j);
+                String code = object.getString("packageCode");
+                set.add(code);
+            }
+        }
+        url = cloudUrl + "/cagecar/api/package/batchUpdate";
         param.put("userId", userId);
         param.put("ids", packageKZS);
+        param.put("codes",set);
         InvokeUtil.invokeString(url, token, param);
         return true;
     }
